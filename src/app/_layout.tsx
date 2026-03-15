@@ -5,13 +5,15 @@ import * as Notifications from 'expo-notifications';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
+import { AppState, StyleSheet } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useThemeConfig } from '@/components/ui/use-theme-config';
 import { hydrateAuth } from '@/features/auth/use-auth-store';
 import { useNotificationListener } from '@/features/alarm/hooks/use-notification-listener';
+import { registerBackgroundTask } from '@/features/alarm/services/background-task';
+import { rescheduleAllAlarms } from '@/features/alarm/services/scheduler';
 import { setupNotificationChannels } from '@/features/alarm/services/scheduler';
 import { useAlarmStore } from '@/features/alarm/stores/use-alarm-store';
 
@@ -33,7 +35,8 @@ useAlarmStore.getState().hydrate();
 // Configure foreground notification behavior — show alert and play sound
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
@@ -54,8 +57,17 @@ export default function RootLayout() {
     async function setup() {
       await Notifications.requestPermissionsAsync();
       await setupNotificationChannels();
+      await registerBackgroundTask();
     }
     setup();
+
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        const alarms = useAlarmStore.getState().alarms;
+        rescheduleAllAlarms(alarms);
+      }
+    });
+    return () => sub.remove();
   }, []);
 
   return (
