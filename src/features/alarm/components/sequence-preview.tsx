@@ -1,9 +1,9 @@
 // src/features/alarm/components/sequence-preview.tsx
 
-import { View } from 'react-native';
-
-import { Text } from '@/components/ui';
 import type { AlarmSequenceItem } from '../types';
+
+import { View } from 'react-native';
+import { Text } from '@/components/ui';
 
 type Props = {
   sequence: AlarmSequenceItem[];
@@ -28,20 +28,21 @@ export function SequencePreview({
       {/* Timeline */}
       <View className="gap-1">
         {sequence.map((item, i) => {
-          const label =
-            i === 0
+          const label
+            = i === 0
               ? 'First alarm'
               : i === sequence.length - 1
                 ? 'Last alarm'
                 : `+${i * intervalMinutes} min`;
 
           return (
-            <View key={i} className="flex-row items-center gap-3 py-1">
+            <View key={item.sequenceIndex} className="flex-row items-center gap-3 py-1">
               <View
-                className={`h-3 w-3 rounded-full ${TIER_COLORS[item.intensityTier]}`}
+                className={`size-3 rounded-full ${TIER_COLORS[item.intensityTier]}`}
               />
               <Text className="w-20 text-sm font-semibold text-white">
-                {item.display}{' '}
+                {item.display}
+                {' '}
                 <Text className="text-xs text-muted-foreground">
                   {item.ampm}
                 </Text>
@@ -53,7 +54,7 @@ export function SequencePreview({
       </View>
 
       {/* Summary */}
-      <View className="rounded-xl bg-navy-700 p-4 gap-2">
+      <View className="gap-2 rounded-xl bg-navy-700 p-4">
         <SummaryRow label="Total alarms" value={String(sequence.length)} />
         <SummaryRow
           label="Range"

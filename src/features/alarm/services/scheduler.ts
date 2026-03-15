@@ -1,9 +1,9 @@
 // src/features/alarm/services/scheduler.ts
 
-import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
-
 import type { Alarm, IntensityTier } from '../types';
+import * as Notifications from 'expo-notifications';
+
+import { Platform } from 'react-native';
 import { CHANNEL_CONFIG } from '../constants';
 import { getChannelId, getSoundFile, getVibrationPattern } from './intensity';
 import { generateSequence } from './sequence-generator';
@@ -24,7 +24,8 @@ function buildNotificationId(
  * Safe to call multiple times — channels are updated if they already exist.
  */
 export async function setupNotificationChannels(): Promise<void> {
-  if (Platform.OS !== 'android') return;
+  if (Platform.OS !== 'android')
+    return;
 
   for (const [tier, config] of Object.entries(CHANNEL_CONFIG)) {
     await Notifications.setNotificationChannelAsync(config.id, {
@@ -81,8 +82,10 @@ function getNextOccurrence(
 
   const currentDay = now.getDay();
   let daysUntil = dayOfWeek - currentDay;
-  if (daysUntil < 0) daysUntil += 7;
-  if (daysUntil === 0 && target <= now) daysUntil = 7;
+  if (daysUntil < 0)
+    daysUntil += 7;
+  if (daysUntil === 0 && target <= now)
+    daysUntil = 7;
 
   target.setDate(target.getDate() + daysUntil);
   return target;
@@ -95,7 +98,8 @@ export async function scheduleAlarmSequence(alarm: Alarm): Promise<void> {
   // Cancel existing first
   await cancelAlarmNotifications(alarm);
 
-  if (!alarm.enabled) return;
+  if (!alarm.enabled)
+    return;
 
   const sequence = generateSequence(alarm);
   const days = getScheduleDays(alarm);
@@ -135,16 +139,25 @@ export async function scheduleAlarmSequence(alarm: Alarm): Promise<void> {
   }
 }
 
+type SnoozeParams = {
+  alarmId: string;
+  snoozeDurationMinutes: number;
+  intensityTier: IntensityTier;
+  sequenceIndex: number;
+  totalInSequence: number;
+};
+
 /**
  * Schedule a snooze notification for the given alarm.
  */
-export async function scheduleSnooze(
-  alarmId: string,
-  snoozeDurationMinutes: number,
-  intensityTier: IntensityTier,
-  sequenceIndex: number,
-  totalInSequence: number,
-): Promise<void> {
+export async function scheduleSnooze(params: SnoozeParams): Promise<void> {
+  const {
+    alarmId,
+    snoozeDurationMinutes,
+    intensityTier,
+    sequenceIndex,
+    totalInSequence,
+  } = params;
   const snoozeId = `${alarmId}_snooze`;
 
   // Cancel any existing snooze for this alarm

@@ -1,5 +1,7 @@
 import type { Alarm } from '../../types';
 
+import { cancelAlarmNotifications, dismissAllRemaining, scheduleAlarmSequence, scheduleSnooze } from '../scheduler';
+
 const mockSchedule = jest.fn().mockResolvedValue('');
 const mockCancel = jest.fn().mockResolvedValue(undefined);
 const mockSetChannel = jest.fn().mockResolvedValue(undefined);
@@ -13,13 +15,23 @@ jest.mock('expo-notifications', () => ({
   SchedulableTriggerInputTypes: { DATE: 'date' },
 }));
 
-import { cancelAlarmNotifications, scheduleAlarmSequence, scheduleSnooze, dismissAllRemaining } from '../scheduler';
+function makeAlarm(overrides: Partial<Alarm> = {}): Alarm {
+  return {
+    id: 'test-alarm',
+    startHour: 7,
+    startMinute: 0,
+    durationMinutes: 30,
+    intervalMinutes: 10,
+    snoozeDurationMinutes: 5,
+    days: [1, 2, 3, 4, 5],
+    enabled: true,
+    ...overrides,
+  };
+}
 
-const makeAlarm = (overrides: Partial<Alarm> = {}): Alarm => ({
-  id: 'test-alarm', startHour: 7, startMinute: 0, durationMinutes: 30, intervalMinutes: 10, snoozeDurationMinutes: 5, days: [1,2,3,4,5], enabled: true, ...overrides,
+beforeEach(() => {
+  jest.clearAllMocks();
 });
-
-beforeEach(() => { jest.clearAllMocks(); });
 
 describe('scheduleAlarmSequence', () => {
   it('cancels existing before scheduling new', async () => {
@@ -33,13 +45,13 @@ describe('scheduleAlarmSequence', () => {
   });
   it('uses deterministic IDs', async () => {
     await scheduleAlarmSequence(makeAlarm({ days: [1] }));
-    const ids = mockSchedule.mock.calls.map((c: unknown[]) => (c[0] as {identifier:string}).identifier);
+    const ids = mockSchedule.mock.calls.map((c: unknown[]) => (c[0] as { identifier: string }).identifier);
     expect(ids).toContain('test-alarm_1_0');
     expect(ids).toContain('test-alarm_1_3');
   });
   it('uses sentinel day 7 for one-time', async () => {
     await scheduleAlarmSequence(makeAlarm({ days: [] }));
-    const ids = mockSchedule.mock.calls.map((c: unknown[]) => (c[0] as {identifier:string}).identifier);
+    const ids = mockSchedule.mock.calls.map((c: unknown[]) => (c[0] as { identifier: string }).identifier);
     expect(ids[0]).toBe('test-alarm_7_0');
   });
 });
@@ -55,10 +67,10 @@ describe('cancelAlarmNotifications', () => {
 
 describe('scheduleSnooze', () => {
   it('schedules with fixed ID', async () => {
-    await scheduleSnooze('test-alarm', 5, 'moderate', 1, 4);
+    await scheduleSnooze({ alarmId: 'test-alarm', snoozeDurationMinutes: 5, intensityTier: 'moderate', sequenceIndex: 1, totalInSequence: 4 });
     expect(mockCancel).toHaveBeenCalledWith('test-alarm_snooze');
     expect(mockSchedule).toHaveBeenCalledTimes(1);
-    expect((mockSchedule.mock.calls[0][0] as {identifier:string}).identifier).toBe('test-alarm_snooze');
+    expect((mockSchedule.mock.calls[0][0] as { identifier: string }).identifier).toBe('test-alarm_snooze');
   });
 });
 

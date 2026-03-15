@@ -1,7 +1,7 @@
+import type { IntensityTier } from '../types';
 import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
-import type { IntensityTier } from '../types';
 import { useRingingStore } from '../stores/use-ringing-store';
 
 export function useNotificationListener() {
@@ -11,7 +11,8 @@ export function useNotificationListener() {
 
   useEffect(() => {
     function handleAlarmData(data: Record<string, unknown>) {
-      if (!data?.alarmId) return;
+      if (!data?.alarmId)
+        return;
       useRingingStore.getState().setRinging({
         alarmId: data.alarmId as string,
         sequenceIndex: data.sequenceIndex as number,
@@ -33,8 +34,8 @@ export function useNotificationListener() {
     });
 
     return () => {
-      if (foregroundListener.current) Notifications.removeNotificationSubscription(foregroundListener.current);
-      if (responseListener.current) Notifications.removeNotificationSubscription(responseListener.current);
+      foregroundListener.current?.remove();
+      responseListener.current?.remove();
     };
   }, [router]);
 }

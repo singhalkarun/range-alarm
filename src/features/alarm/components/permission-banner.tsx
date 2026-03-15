@@ -9,7 +9,8 @@ type Props = {
 };
 
 export function PermissionBanner({ visible }: Props) {
-  if (!visible) return null;
+  if (!visible)
+    return null;
 
   const openSettings = async () => {
     await Linking.openSettings();

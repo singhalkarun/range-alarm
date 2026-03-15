@@ -31,7 +31,8 @@ export function SnoozeSelector({ value, onChange }: Props) {
                   isActive ? 'text-black' : 'text-muted-foreground'
                 }`}
               >
-                {opt}m
+                {opt}
+                m
               </Text>
             </Pressable>
           );

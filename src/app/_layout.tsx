@@ -10,12 +10,11 @@ import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useThemeConfig } from '@/components/ui/use-theme-config';
-import { hydrateAuth } from '@/features/auth/use-auth-store';
 import { useNotificationListener } from '@/features/alarm/hooks/use-notification-listener';
 import { registerBackgroundTask } from '@/features/alarm/services/background-task';
-import { rescheduleAllAlarms } from '@/features/alarm/services/scheduler';
-import { setupNotificationChannels } from '@/features/alarm/services/scheduler';
+import { rescheduleAllAlarms, setupNotificationChannels } from '@/features/alarm/services/scheduler';
 import { useAlarmStore } from '@/features/alarm/stores/use-alarm-store';
+import { hydrateAuth } from '@/features/auth/use-auth-store';
 
 import { loadSelectedTheme } from '@/lib/hooks/use-selected-theme';
 // Import  global CSS file

@@ -7,9 +7,10 @@ import { useAlarmStore } from '@/features/alarm/stores/use-alarm-store';
 
 export default function EditAlarmRoute() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const alarm = useAlarmStore((s) => s.alarms.find((a) => a.id === id));
+  const alarm = useAlarmStore(s => s.alarms.find(a => a.id === id));
 
-  if (!alarm) return null;
+  if (!alarm)
+    return null;
 
   return <CreateScreen initialValues={alarm} />;
 }

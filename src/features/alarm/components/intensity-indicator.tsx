@@ -18,7 +18,7 @@ export function IntensityIndicator({ total, maxDots = 12 }: Props) {
         return (
           <View
             key={i}
-            className="h-2 w-2 rounded-full bg-cyan-400"
+            className="size-2 rounded-full bg-cyan-400"
             style={{ opacity }}
           />
         );

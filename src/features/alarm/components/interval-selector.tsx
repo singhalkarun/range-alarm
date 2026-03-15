@@ -38,7 +38,8 @@ export function IntervalSelector({ value, onChange, maxInterval }: Props) {
                   isActive ? 'text-black' : 'text-muted-foreground'
                 }`}
               >
-                {opt}m
+                {opt}
+                m
               </Text>
             </Pressable>
           );

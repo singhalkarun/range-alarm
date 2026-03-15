@@ -17,9 +17,9 @@ export function DaySelector({ selectedDays, onToggleDay }: Props) {
         const isSelected = selectedDays.includes(index);
         return (
           <Pressable
-            key={index}
+            key={label}
             onPress={() => onToggleDay(index)}
-            className={`h-8 w-8 items-center justify-center rounded-full ${
+            className={`size-8 items-center justify-center rounded-full ${
               isSelected ? 'bg-cyan-400' : 'bg-navy-600'
             }`}
             testID={`day-${index}`}

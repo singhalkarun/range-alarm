@@ -14,14 +14,18 @@ type Props = {
 };
 
 function wrapHour(h: number): number {
-  if (h > 12) return 1;
-  if (h < 1) return 12;
+  if (h > 12)
+    return 1;
+  if (h < 1)
+    return 12;
   return h;
 }
 
 function wrapMinute(m: number): number {
-  if (m >= 60) return 0;
-  if (m < 0) return 59;
+  if (m >= 60)
+    return 0;
+  if (m < 0)
+    return 59;
   return m;
 }
 

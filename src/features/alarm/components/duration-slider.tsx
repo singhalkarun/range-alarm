@@ -17,7 +17,9 @@ export function DurationSlider({ value, onChange }: Props) {
       <View className="flex-row items-center justify-between">
         <Text className="text-sm text-muted-foreground">Duration</Text>
         <Text className="text-lg font-semibold text-cyan-400">
-          {value} <Text className="text-sm text-muted-foreground">min</Text>
+          {value}
+          {' '}
+          <Text className="text-sm text-muted-foreground">min</Text>
         </Text>
       </View>
       <Slider
