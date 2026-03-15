@@ -101,22 +101,32 @@
 
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
+
+  /* Alarm app - Dark Cyan palette */
+  --color-navy-900: #060b14;
+  --color-navy-800: #0a0e1a;
+  --color-navy-700: #0d1b2a;
+  --color-navy-600: #1a2940;
+
+  --color-cyan-400: #00D4FF;
+  --color-cyan-500: #00bfe6;
+  --color-cyan-600: #00a8cc;
 }
 
 /* Dark mode colors */
 @media (prefers-color-scheme: dark) {
   @theme {
-    --color-background: #0a0a0a;
-    --color-foreground: #fafafa;
+    --color-background: #0a0e1a;
+    --color-foreground: #f0f0f0;
 
-    --color-card: #171717;
-    --color-card-foreground: #fafafa;
+    --color-card: #0d1b2a;
+    --color-card-foreground: #f0f0f0;
 
-    --color-muted: #262626;
-    --color-muted-foreground: #a3a3a3;
+    --color-muted: #1a2940;
+    --color-muted-foreground: #8899aa;
 
-    --color-border: #404040;
-    --color-input: #404040;
+    --color-border: #1a2940;
+    --color-input: #1a2940;
   }
 }
 
