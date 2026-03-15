@@ -1,3 +1,5 @@
-// src/app/(alarm)/index.tsx
+import { HomeScreen } from '@/features/alarm/screens/home-screen';
 
-export { HomeScreen as default } from '@/features/alarm/screens/home-screen';
+export default function AlarmIndexRoute() {
+  return <HomeScreen />;
+}

@@ -1,3 +1,5 @@
-// src/app/(alarm)/create.tsx
+import { CreateScreen } from '@/features/alarm/screens/create-screen';
 
-export { CreateScreen as default } from '@/features/alarm/screens/create-screen';
+export default function CreateAlarmRoute() {
+  return <CreateScreen />;
+}

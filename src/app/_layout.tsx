@@ -10,6 +10,7 @@ import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useThemeConfig } from '@/components/ui/use-theme-config';
+import { APIProvider } from '@/lib/api';
 import { useNotificationListener } from '@/features/alarm/hooks/use-notification-listener';
 import { registerBackgroundTask } from '@/features/alarm/services/background-task';
 import { rescheduleAllAlarms, setupNotificationChannels } from '@/features/alarm/services/scheduler';
@@ -99,10 +100,12 @@ function Providers({ children }: { children: React.ReactNode }) {
     >
       <KeyboardProvider>
         <ThemeProvider value={theme}>
-          <BottomSheetModalProvider>
-            {children}
-            <FlashMessage position="top" />
-          </BottomSheetModalProvider>
+          <APIProvider>
+            <BottomSheetModalProvider>
+              {children}
+              <FlashMessage position="top" />
+            </BottomSheetModalProvider>
+          </APIProvider>
         </ThemeProvider>
       </KeyboardProvider>
     </GestureHandlerRootView>
