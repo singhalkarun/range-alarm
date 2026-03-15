@@ -30,9 +30,17 @@ type Alarm = {
 - `generateSequence(alarm)` — computes the ordered list of alarm times from start time, duration, and interval. Handles midnight boundary wrap-around. Capped at 64 entries.
 - `getIntensityTier(sequenceIndex, totalCount)` — returns one of four tiers (gentle, moderate, strong, aggressive) based on position in sequence.
 
+### Validation Constraints
+
+- `durationMinutes`: min 2, max 120
+- `intervalMinutes`: min 1, max `durationMinutes`. Quick-select options: 2, 5, 10, 15, 20 min.
+- `snoozeDurationMinutes`: one of 2, 5, 10
+- The generated sequence is capped at 64 entries. If `durationMinutes / intervalMinutes + 1 > 64`, the UI prevents saving and shows a validation error.
+- Total scheduled notifications across all enabled alarms must stay under 64 (iOS limit). The create/edit screen shows a live count and blocks saving if the limit would be exceeded.
+
 ### Notification ID Convention
 
-Each scheduled notification uses a deterministic ID: `{alarmId}_{dayIndex}_{sequenceIndex}`. This allows targeted cancellation for "Dismiss All" (cancel remaining in today's sequence) and toggle-off (cancel all for an alarm).
+Each scheduled notification uses a deterministic ID: `{alarmId}_{dayIndex}_{sequenceIndex}`. IDs are reconstructible from the alarm data — no separate storage of notification IDs is needed. To cancel notifications for an alarm, enumerate IDs by iterating over the alarm's days and sequence length and call `cancelScheduledNotificationAsync` for each.
 
 ## State Management
 
@@ -63,8 +71,7 @@ When a user saves or enables an alarm, all notifications in the sequence are sch
 2. Cancel any existing notifications for this alarm ID
 3. For each enabled day, compute all alarm times via `generateSequence()`
 4. For each time in the sequence, determine intensity tier and select corresponding sound/vibration
-5. Schedule via `Notifications.scheduleNotificationAsync()` with a date trigger
-6. Store notification IDs for later cancellation
+5. Schedule via `Notifications.scheduleNotificationAsync()` with a date trigger and deterministic ID
 
 ### Recurring Alarm Re-scheduling
 
@@ -95,7 +102,34 @@ Sound and vibration escalate through the alarm sequence based on position:
 | 50–75%            | Strong     | Louder tone   | Continuous short   |
 | Last 25%          | Aggressive | Sharp alarm   | Continuous long    |
 
-Four audio files are bundled as assets. The tier is determined at schedule time from `sequenceIndex / totalCount` and encoded in the notification's channel (Android) or sound file (iOS).
+Four audio files are bundled as assets in `.wav` format (cross-platform compatible):
+- `gentle.wav` — soft chime
+- `moderate.wav` — medium tone
+- `strong.wav` — louder tone
+- `aggressive.wav` — sharp alarm
+
+The tier is determined at schedule time from `sequenceIndex / totalCount` and encoded in the notification's channel (Android) or sound file (iOS).
+
+### Android Notification Channels
+
+Four channels are created at app startup, one per intensity tier:
+
+| Channel ID | Name | Importance | Sound | Vibration |
+|---|---|---|---|---|
+| `alarm-gentle` | Gentle Alarm | HIGH | `gentle.wav` | [100] |
+| `alarm-moderate` | Moderate Alarm | HIGH | `moderate.wav` | [100, 100] |
+| `alarm-strong` | Strong Alarm | MAX | `strong.wav` | [100, 200, 100, 200] |
+| `alarm-aggressive` | Urgent Alarm | MAX | `aggressive.wav` | [200, 300, 200, 300, 200] |
+
+All channels use `HIGH` or `MAX` importance to ensure heads-up display. Full-screen intent is enabled on all channels.
+
+### New Dependencies
+
+The following packages must be added to the project:
+- `expo-notifications` — local notification scheduling, channels, permissions
+- `expo-task-manager` — background fetch for weekly re-scheduling
+
+Both require Expo config plugin entries in `app.config.ts` and a `expo prebuild` to generate native code.
 
 ## Navigation & Routing
 
@@ -110,8 +144,10 @@ src/app/
     index.tsx              — Home: alarm list
     create.tsx             — 3-step creation wizard
     edit/[id].tsx          — Edit: pre-filled wizard
-  (app)/                   — Existing auth/settings (hidden, retained for later)
+  (app)/                   — Existing auth/settings (code retained, not linked)
 ```
+
+**Routing change:** The root `_layout.tsx` will set `(alarm)` as the `initialRouteName`, replacing the current `(app)`. The `(app)` group and its routes remain in the codebase but are not navigable from the alarm UI — no tabs, links, or redirects point to it. This preserves the auth/settings code for future use without affecting the current alarm-only experience.
 
 ### Screen Descriptions
 
@@ -125,11 +161,11 @@ src/app/
 - Permission banner if notification permissions not granted
 
 **Create / Edit (`(alarm)/create.tsx`, `(alarm)/edit/[id].tsx`)**
+- Both routes render the shared `create-screen.tsx` component. `edit/[id].tsx` is a thin wrapper that reads the `id` param, fetches the alarm from the store, and passes it as `initialValues` to the wizard.
 - 3-step wizard with step-dot progress indicator
-- Step 1: Time picker (scrollable hour/minute, AM/PM toggle)
+- Step 1: Time picker (scrollable hour/minute, AM/PM toggle — follows device 12/24h locale setting)
 - Step 2: Duration slider, interval quick-select (2, 5, 10, 15, 20 min), snooze duration selector
-- Step 3: Sequence preview (timeline visualization), summary stats, day-of-week selector
-- Edit mode: determined by presence of `[id]` route param, pre-fills from store
+- Step 3: Sequence preview (timeline visualization), summary stats, day-of-week selector, live notification count vs iOS 64 limit
 - Save triggers notification scheduling
 
 **Ringing (`ringing.tsx`)**
