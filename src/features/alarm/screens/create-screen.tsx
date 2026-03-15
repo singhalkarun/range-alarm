@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 
 import { Pressable, ScrollView, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui';
 import { DaySelector } from '../components/day-selector';
 import { DurationSlider } from '../components/duration-slider';
@@ -151,7 +152,7 @@ export function CreateScreen({ initialValues }: Props) {
   }, [previewAlarm, initialValues?.id, saveAlarm, router, overLimit]);
 
   return (
-    <View className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background">
       <StepDots step={step} />
 
       <ScrollView className="flex-1 px-6" keyboardShouldPersistTaps="handled">
@@ -209,6 +210,6 @@ export function CreateScreen({ initialValues }: Props) {
         onNext={() => setStep(step + 1)}
         onSave={handleSave}
       />
-    </View>
+    </SafeAreaView>
   );
 }

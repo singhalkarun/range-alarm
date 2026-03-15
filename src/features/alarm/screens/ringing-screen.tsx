@@ -3,6 +3,7 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -149,7 +150,7 @@ export function RingingScreen() {
   }
 
   return (
-    <View className="flex-1 items-center justify-center bg-background px-8">
+    <SafeAreaView className="flex-1 items-center justify-center bg-background px-8">
       <Animated.View
         style={pulseStyle}
         className="mb-8 size-40 items-center justify-center rounded-full border-4 border-cyan-400"
@@ -179,6 +180,6 @@ export function RingingScreen() {
         onDismissAll={handleDismissAll}
         snoozeDurationMinutes={snoozeDurationMinutes}
       />
-    </View>
+    </SafeAreaView>
   );
 }

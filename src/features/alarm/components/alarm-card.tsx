@@ -91,7 +91,7 @@ export function AlarmCard({ alarm, onPress, onToggle, onDelete }: Props) {
             const isActive = alarm.days.includes(i);
             return (
               <View
-                key={label}
+                key={i}
                 className={`rounded-md px-1.5 py-0.5 ${
                   isActive ? 'bg-cyan-400' : 'bg-navy-800/50'
                 }`}

@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 
 import { Alert, AppState, Pressable, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/ui';
 import { AlarmCard } from '../components/alarm-card';
@@ -65,7 +66,7 @@ export function HomeScreen() {
   );
 
   return (
-    <View className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background">
       <PermissionBanner visible={permissionDenied} />
 
       {alarms.length === 0
@@ -104,6 +105,6 @@ export function HomeScreen() {
       >
         <Text className="text-2xl font-bold text-black">+</Text>
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 }
