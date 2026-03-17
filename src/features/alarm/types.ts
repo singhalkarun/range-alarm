@@ -7,6 +7,7 @@ export type Alarm = {
   durationMinutes: number; // 2-120
   intervalMinutes: number; // 1 to durationMinutes
   snoozeDurationMinutes: number; // 2, 5, or 10
+  maxSnoozeCount: number; // max times a single notification can be snoozed
   days: number[]; // 0=Sun..6=Sat, empty = one-time
   enabled: boolean;
   label?: string;

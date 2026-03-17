@@ -13,13 +13,15 @@ type Props = {
 
 export function DurationSlider({ value, onChange }: Props) {
   return (
-    <View className="gap-2">
-      <View className="flex-row items-center justify-between">
-        <Text className="text-sm text-muted-foreground">Duration</Text>
-        <Text className="text-lg font-semibold text-cyan-400">
+    <View className="gap-3">
+      <Text className="text-[13px] font-semibold tracking-wider text-muted-foreground uppercase">
+        Duration
+      </Text>
+      <View className="mb-3 items-center">
+        <Text className="text-[40px] font-bold text-white" style={{ lineHeight: 50 }}>
           {value}
           {' '}
-          <Text className="text-sm text-muted-foreground">min</Text>
+          <Text className="text-xl text-cyan-400">min</Text>
         </Text>
       </View>
       <Slider
@@ -29,7 +31,7 @@ export function DurationSlider({ value, onChange }: Props) {
         value={value}
         onValueChange={onChange}
         minimumTrackTintColor="#00D4FF"
-        maximumTrackTintColor="#1a2940"
+        maximumTrackTintColor="#243447"
         thumbTintColor="#00D4FF"
         testID="duration-slider"
       />

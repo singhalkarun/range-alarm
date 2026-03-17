@@ -13,6 +13,21 @@ object AlarmNotificationHelper {
     const val CHANNEL_ID = "alarm-ringing"
     const val NOTIFICATION_ID = 9999
 
+    private fun getSmallIconResId(context: Context): Int {
+        // Try app's notification icon first, then launcher icon, then system fallback
+        val notifIcon = context.resources.getIdentifier(
+            "notification_icon", "drawable", context.packageName
+        )
+        if (notifIcon != 0) return notifIcon
+
+        val launcherIcon = context.resources.getIdentifier(
+            "ic_launcher", "mipmap", context.packageName
+        )
+        if (launcherIcon != 0) return launcherIcon
+
+        return android.R.drawable.ic_lock_idle_alarm
+    }
+
     fun ensureChannel(context: Context) {
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (nm.getNotificationChannel(CHANNEL_ID) != null) return
@@ -73,7 +88,7 @@ object AlarmNotificationHelper {
         val label = entry.label.ifEmpty { "RangeAlarm" }
 
         return NotificationCompat.Builder(context, CHANNEL_ID).apply {
-            setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            setSmallIcon(getSmallIconResId(context))
             setContentTitle(label)
             setContentText(sequenceText)
             setCategory(NotificationCompat.CATEGORY_ALARM)
@@ -91,7 +106,7 @@ object AlarmNotificationHelper {
     private fun buildMinimalNotification(context: Context, entry: AlarmEntry): Notification {
         ensureChannel(context)
         return NotificationCompat.Builder(context, CHANNEL_ID).apply {
-            setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+            setSmallIcon(getSmallIconResId(context))
             setContentTitle(entry.label.ifEmpty { "RangeAlarm" })
             setContentText("Alarm ${entry.sequenceIndex + 1} of ${entry.totalInSequence}")
             setCategory(NotificationCompat.CATEGORY_ALARM)

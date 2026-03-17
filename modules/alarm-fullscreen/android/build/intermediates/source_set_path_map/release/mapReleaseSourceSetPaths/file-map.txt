@@ -1,0 +1,10 @@
+expo.modules.alarmfullscreen.alarm-fullscreen-core-ktx-1.6.0-0 /home/ubuntu/.gradle/caches/8.14.3/transforms/40cad0f0f360a3275d75f6cdabe0894f/transformed/core-ktx-1.6.0/res
+expo.modules.alarmfullscreen.alarm-fullscreen-annotation-experimental-1.1.0-1 /home/ubuntu/.gradle/caches/8.14.3/transforms/438ced885c05a9c6edbdfafaa6b841cb/transformed/annotation-experimental-1.1.0/res
+expo.modules.alarmfullscreen.alarm-fullscreen-core-1.6.0-2 /home/ubuntu/.gradle/caches/8.14.3/transforms/e0cc69a19f866d742a71f4da109c3096/transformed/core-1.6.0/res
+expo.modules.alarmfullscreen.alarm-fullscreen-pngs-3 /home/ubuntu/projects/alarm/modules/alarm-fullscreen/android/build/generated/res/pngs/release
+expo.modules.alarmfullscreen.alarm-fullscreen-resValues-4 /home/ubuntu/projects/alarm/modules/alarm-fullscreen/android/build/generated/res/resValues/release
+expo.modules.alarmfullscreen.alarm-fullscreen-mergeReleaseResources-5 /home/ubuntu/projects/alarm/modules/alarm-fullscreen/android/build/intermediates/incremental/release/mergeReleaseResources/merged.dir
+expo.modules.alarmfullscreen.alarm-fullscreen-mergeReleaseResources-6 /home/ubuntu/projects/alarm/modules/alarm-fullscreen/android/build/intermediates/incremental/release/mergeReleaseResources/stripped.dir
+expo.modules.alarmfullscreen.alarm-fullscreen-release-7 /home/ubuntu/projects/alarm/modules/alarm-fullscreen/android/build/intermediates/merged_res/release/mergeReleaseResources
+expo.modules.alarmfullscreen.alarm-fullscreen-main-8 /home/ubuntu/projects/alarm/modules/alarm-fullscreen/android/src/main/res
+expo.modules.alarmfullscreen.alarm-fullscreen-release-9 /home/ubuntu/projects/alarm/modules/alarm-fullscreen/android/src/release/res

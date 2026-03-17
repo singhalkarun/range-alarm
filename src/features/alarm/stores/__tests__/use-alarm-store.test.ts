@@ -15,7 +15,7 @@ describe('useAlarmStore', () => {
   it('adds an alarm', () => {
     const { result } = renderHook(() => useAlarmStore());
     act(() => {
-      result.current.addAlarm({ id: 'test-1', startHour: 7, startMinute: 0, durationMinutes: 30, intervalMinutes: 10, snoozeDurationMinutes: 5, days: [1, 2, 3, 4, 5], enabled: true });
+      result.current.addAlarm({ id: 'test-1', startHour: 7, startMinute: 0, durationMinutes: 30, intervalMinutes: 10, snoozeDurationMinutes: 5, maxSnoozeCount: 3, days: [1, 2, 3, 4, 5], enabled: true });
     });
     expect(result.current.alarms).toHaveLength(1);
     expect(result.current.alarms[0].id).toBe('test-1');
@@ -23,7 +23,7 @@ describe('useAlarmStore', () => {
   it('updates an alarm', () => {
     const { result } = renderHook(() => useAlarmStore());
     act(() => {
-      result.current.addAlarm({ id: 'test-1', startHour: 7, startMinute: 0, durationMinutes: 30, intervalMinutes: 10, snoozeDurationMinutes: 5, days: [1, 2, 3, 4, 5], enabled: true });
+      result.current.addAlarm({ id: 'test-1', startHour: 7, startMinute: 0, durationMinutes: 30, intervalMinutes: 10, snoozeDurationMinutes: 5, maxSnoozeCount: 3, days: [1, 2, 3, 4, 5], enabled: true });
     });
     act(() => {
       result.current.updateAlarm('test-1', { startHour: 8 });
@@ -33,7 +33,7 @@ describe('useAlarmStore', () => {
   it('deletes an alarm', () => {
     const { result } = renderHook(() => useAlarmStore());
     act(() => {
-      result.current.addAlarm({ id: 'test-1', startHour: 7, startMinute: 0, durationMinutes: 30, intervalMinutes: 10, snoozeDurationMinutes: 5, days: [1, 2, 3, 4, 5], enabled: true });
+      result.current.addAlarm({ id: 'test-1', startHour: 7, startMinute: 0, durationMinutes: 30, intervalMinutes: 10, snoozeDurationMinutes: 5, maxSnoozeCount: 3, days: [1, 2, 3, 4, 5], enabled: true });
     });
     act(() => {
       result.current.deleteAlarm('test-1');
@@ -43,7 +43,7 @@ describe('useAlarmStore', () => {
   it('toggles alarm enabled state', () => {
     const { result } = renderHook(() => useAlarmStore());
     act(() => {
-      result.current.addAlarm({ id: 'test-1', startHour: 7, startMinute: 0, durationMinutes: 30, intervalMinutes: 10, snoozeDurationMinutes: 5, days: [1, 2, 3, 4, 5], enabled: true });
+      result.current.addAlarm({ id: 'test-1', startHour: 7, startMinute: 0, durationMinutes: 30, intervalMinutes: 10, snoozeDurationMinutes: 5, maxSnoozeCount: 3, days: [1, 2, 3, 4, 5], enabled: true });
     });
     act(() => {
       result.current.toggleAlarm('test-1');

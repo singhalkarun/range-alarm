@@ -10,6 +10,9 @@ export const INTERVAL_MIN = 1;
 export const INTERVAL_OPTIONS = [2, 5, 10, 15, 20] as const;
 export const SNOOZE_OPTIONS = [2, 5, 10] as const;
 
+export const DEFAULT_MAX_SNOOZE_COUNT = 3;
+export const MAX_SNOOZE_OPTIONS = [1, 2, 3, 5, 10] as const;
+
 export const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'] as const;
 
 export const INTENSITY_TIERS: IntensityTier[] = [
@@ -37,8 +40,15 @@ export const CHANNEL_CONFIG: Record<
   IntensityTier,
   { id: string; name: string; importance: number }
 > = {
-  gentle: { id: 'alarm-gentle', name: 'Gentle Alarm', importance: 4 },
-  moderate: { id: 'alarm-moderate', name: 'Moderate Alarm', importance: 4 },
-  strong: { id: 'alarm-strong', name: 'Strong Alarm', importance: 5 },
-  aggressive: { id: 'alarm-aggressive', name: 'Urgent Alarm', importance: 5 },
+  gentle: { id: 'alarm-gentle-v2', name: 'Gentle Alarm', importance: 4 },
+  moderate: { id: 'alarm-moderate-v2', name: 'Moderate Alarm', importance: 4 },
+  strong: { id: 'alarm-strong-v2', name: 'Strong Alarm', importance: 5 },
+  aggressive: { id: 'alarm-aggressive-v2', name: 'Urgent Alarm', importance: 5 },
 };
+
+export const STALE_CHANNEL_IDS = [
+  'alarm-gentle',
+  'alarm-moderate',
+  'alarm-strong',
+  'alarm-aggressive',
+];

@@ -1,12 +1,16 @@
 package expo.modules.alarmfullscreen
 
+import android.Manifest
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
@@ -66,6 +70,25 @@ class AlarmFullscreenModule : Module() {
             return@Function null
         }
 
+        Function("hasNotificationPermission") {
+            if (Build.VERSION.SDK_INT < 33) return@Function true
+            val context = appContext.reactContext ?: return@Function true
+            return@Function ContextCompat.checkSelfPermission(
+                context, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+
+        Function("requestNotificationPermission") {
+            if (Build.VERSION.SDK_INT < 33) return@Function null
+            val activity = appContext.currentActivity ?: return@Function null
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                1001
+            )
+            return@Function null
+        }
+
         // --- New alarm engine functions ---
 
         Function("scheduleAlarm") { params: Map<String, Any> ->
@@ -89,17 +112,19 @@ class AlarmFullscreenModule : Module() {
         }
 
         Function("cancelAlarm") { id: String ->
-            val context = appContext.reactContext ?: return@Function
+            val context = appContext.reactContext ?: return@Function null
             AlarmScheduler.cancel(context, id)
+            return@Function null
         }
 
         Function("cancelAllAlarms") {
-            val context = appContext.reactContext ?: return@Function
+            val context = appContext.reactContext ?: return@Function null
             AlarmScheduler.cancelAll(context)
+            return@Function null
         }
 
         Function("stopRinging") {
-            val context = appContext.reactContext ?: return@Function
+            val context = appContext.reactContext ?: return@Function null
             val entryId = AlarmService.currentEntryId
             if (entryId != null) {
                 val entry = AlarmStorage.get(context, entryId)
@@ -109,6 +134,7 @@ class AlarmFullscreenModule : Module() {
                     AlarmEventBus.post(AlarmEventBus.alarmStoppedEvent(entry.alarmId))
                 }
             }
+            return@Function null
         }
 
         Function("snoozeRinging") { snoozeDurationMinutes: Int ->

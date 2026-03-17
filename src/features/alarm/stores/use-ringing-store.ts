@@ -1,24 +1,29 @@
 import type { IntensityTier } from '../types';
 import { create } from 'zustand';
+import { DEFAULT_MAX_SNOOZE_COUNT } from '../constants';
 
 type RingingState = {
   activeAlarmId: string | null;
+  dayIndex: number;
   currentSequenceIndex: number;
   totalInSequence: number;
   intensityTier: IntensityTier;
   snoozeDurationMinutes: number;
-  setRinging: (params: { alarmId: string; sequenceIndex: number; total: number; tier: IntensityTier; snoozeDuration: number }) => void;
-  advanceToNext: (tier: IntensityTier) => void;
+  snoozeCount: number;
+  maxSnoozeCount: number;
+  setRinging: (params: { alarmId: string; dayIndex: number; sequenceIndex: number; total: number; tier: IntensityTier; snoozeDuration: number; snoozeCount: number; maxSnoozeCount: number }) => void;
   clear: () => void;
 };
 
-export const useRingingStore = create<RingingState>((set, get) => ({
+export const useRingingStore = create<RingingState>(set => ({
   activeAlarmId: null,
+  dayIndex: 0,
   currentSequenceIndex: 0,
   totalInSequence: 0,
   intensityTier: 'gentle',
   snoozeDurationMinutes: 5,
-  setRinging: ({ alarmId, sequenceIndex, total, tier, snoozeDuration }) => { set({ activeAlarmId: alarmId, currentSequenceIndex: sequenceIndex, totalInSequence: total, intensityTier: tier, snoozeDurationMinutes: snoozeDuration }); },
-  advanceToNext: (tier) => { set({ currentSequenceIndex: get().currentSequenceIndex + 1, intensityTier: tier }); },
-  clear: () => { set({ activeAlarmId: null, currentSequenceIndex: 0, totalInSequence: 0, intensityTier: 'gentle', snoozeDurationMinutes: 5 }); },
+  snoozeCount: 0,
+  maxSnoozeCount: DEFAULT_MAX_SNOOZE_COUNT,
+  setRinging: ({ alarmId, dayIndex, sequenceIndex, total, tier, snoozeDuration, snoozeCount, maxSnoozeCount }) => { set({ activeAlarmId: alarmId, dayIndex, currentSequenceIndex: sequenceIndex, totalInSequence: total, intensityTier: tier, snoozeDurationMinutes: snoozeDuration, snoozeCount, maxSnoozeCount }); },
+  clear: () => { set({ activeAlarmId: null, dayIndex: 0, currentSequenceIndex: 0, totalInSequence: 0, intensityTier: 'gentle', snoozeDurationMinutes: 5, snoozeCount: 0, maxSnoozeCount: DEFAULT_MAX_SNOOZE_COUNT }); },
 }));

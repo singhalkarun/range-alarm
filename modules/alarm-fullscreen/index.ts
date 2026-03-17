@@ -30,6 +30,14 @@ export function openFullScreenIntentSettings(): void {
   AlarmFullscreen?.openFullScreenIntentSettings();
 }
 
+export function hasNotificationPermission(): boolean {
+  return (AlarmFullscreen?.hasNotificationPermission() as boolean) ?? true;
+}
+
+export function requestNotificationPermission(): void {
+  AlarmFullscreen?.requestNotificationPermission();
+}
+
 // --- Alarm engine functions (new) ---
 
 export type ScheduleAlarmParams = {

@@ -41,7 +41,7 @@ const SCHEMES = {
   production: 'obytesApp',
 } as const;
 
-const NAME = 'ObytesApp';
+const NAME = 'Range Alarm';
 
 // Check if strict validation is required (before prebuild)
 const STRICT_ENV_VALIDATION = process.env.STRICT_ENV_VALIDATION === '1';

@@ -10,6 +10,7 @@ function makeAlarm(overrides: Partial<Alarm> = {}): Alarm {
     durationMinutes: 30,
     intervalMinutes: 10,
     snoozeDurationMinutes: 5,
+    maxSnoozeCount: 3,
     days: [1, 2, 3, 4, 5],
     enabled: true,
     ...overrides,

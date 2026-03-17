@@ -13,9 +13,11 @@ type Props = {
 
 export function IntervalSelector({ value, onChange, maxInterval }: Props) {
   return (
-    <View className="gap-2">
-      <Text className="text-sm text-muted-foreground">Ring every</Text>
-      <View className="flex-row gap-2">
+    <View className="gap-3">
+      <Text className="text-[13px] font-semibold tracking-wider text-muted-foreground uppercase">
+        Ring Every
+      </Text>
+      <View className="flex-row gap-2.5">
         {INTERVAL_OPTIONS.map((opt) => {
           const disabled = maxInterval !== undefined && opt > maxInterval;
           const isActive = opt === value;
@@ -24,18 +26,18 @@ export function IntervalSelector({ value, onChange, maxInterval }: Props) {
               key={opt}
               onPress={() => !disabled && onChange(opt)}
               disabled={disabled}
-              className={`rounded-lg px-4 py-2 ${
+              className={`flex-1 items-center rounded-[10px] border-[1.5px] bg-card py-3.5 ${
                 isActive
-                  ? 'bg-cyan-400'
+                  ? 'border-cyan-400 bg-cyan-400/15'
                   : disabled
-                    ? 'bg-navy-600 opacity-30'
-                    : 'bg-navy-600'
+                    ? 'border-border opacity-30'
+                    : 'border-border'
               }`}
               testID={`interval-${opt}`}
             >
               <Text
-                className={`text-sm font-semibold ${
-                  isActive ? 'text-black' : 'text-muted-foreground'
+                className={`text-base font-semibold ${
+                  isActive ? 'text-cyan-400' : 'text-white'
                 }`}
               >
                 {opt}

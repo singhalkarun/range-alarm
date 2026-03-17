@@ -104,9 +104,9 @@
 
   /* Alarm app - Dark Cyan palette */
   --color-navy-900: #060b14;
-  --color-navy-800: #0a0e1a;
-  --color-navy-700: #0d1b2a;
-  --color-navy-600: #1a2940;
+  --color-navy-800: #0D1B2A;
+  --color-navy-700: #1B2838;
+  --color-navy-600: #243447;
 
   --color-cyan-400: #00D4FF;
   --color-cyan-500: #00bfe6;
@@ -116,17 +116,17 @@
 /* Dark mode colors */
 @media (prefers-color-scheme: dark) {
   @theme {
-    --color-background: #0a0e1a;
+    --color-background: #0D1B2A;
     --color-foreground: #f0f0f0;
 
-    --color-card: #0d1b2a;
+    --color-card: #1B2838;
     --color-card-foreground: #f0f0f0;
 
-    --color-muted: #1a2940;
-    --color-muted-foreground: #8899aa;
+    --color-muted: #243447;
+    --color-muted-foreground: #8892A0;
 
-    --color-border: #1a2940;
-    --color-input: #1a2940;
+    --color-border: #2A3A4E;
+    --color-input: #2A3A4E;
   }
 }
 

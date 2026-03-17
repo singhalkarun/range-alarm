@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "expo.modules.alarmfullscreen.alarm-fullscreen-release-6:/layout/notification_template_part_time.xml",
+        "source": "expo.modules.alarmfullscreen.alarm-fullscreen-core-1.6.0-2:/layout/notification_template_part_time.xml"
+    },
+    {
+        "merged": "expo.modules.alarmfullscreen.alarm-fullscreen-release-6:/layout/custom_dialog.xml",
+        "source": "expo.modules.alarmfullscreen.alarm-fullscreen-core-1.6.0-2:/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "expo.modules.alarmfullscreen.alarm-fullscreen-release-6:/layout/notification_template_part_chronometer.xml",
+        "source": "expo.modules.alarmfullscreen.alarm-fullscreen-core-1.6.0-2:/layout/notification_template_part_chronometer.xml"
+    }
+]

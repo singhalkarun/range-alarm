@@ -1,13 +1,17 @@
 // src/app/(alarm)/_layout.tsx
 
-import { Stack } from 'expo-router';
+import { Stack, SplashScreen } from 'expo-router';
+import { useEffect } from 'react';
 
 export default function AlarmLayout() {
+  useEffect(() => {
+    SplashScreen.hideAsync();
+  }, []);
   return (
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: '#0a0e1a' },
+        contentStyle: { backgroundColor: '#0D1B2A' },
       }}
     >
       <Stack.Screen name="index" />

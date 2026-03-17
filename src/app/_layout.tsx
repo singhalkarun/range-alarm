@@ -13,7 +13,7 @@ import { useThemeConfig } from '@/components/ui/use-theme-config';
 import { APIProvider } from '@/lib/api';
 import { useAlarmEventListener } from '@/features/alarm/hooks/use-alarm-event-listener';
 import { registerBackgroundTask } from '@/features/alarm/services/background-task';
-import { getLaunchAlarmData } from 'modules/alarm-fullscreen';
+import { getLaunchAlarmData, hasNotificationPermission, requestNotificationPermission } from 'modules/alarm-fullscreen';
 import { rescheduleAllAlarms } from '@/features/alarm/services/scheduler';
 import { useRingingStore } from '@/features/alarm/stores/use-ringing-store';
 import { useAlarmStore } from '@/features/alarm/stores/use-alarm-store';
@@ -48,6 +48,11 @@ export default function RootLayout() {
 
   React.useEffect(() => {
     async function setup() {
+      // Request notification permission (required on Android 13+ for visible notifications)
+      if (!hasNotificationPermission()) {
+        requestNotificationPermission();
+      }
+
       await registerBackgroundTask();
 
       // Cold-start: check if app was launched by alarm full-screen intent

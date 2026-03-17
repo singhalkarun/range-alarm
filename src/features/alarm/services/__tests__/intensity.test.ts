@@ -3,10 +3,10 @@ import { getChannelId, getSoundFile, getVibrationPattern } from '../intensity';
 
 describe('getChannelId', () => {
   it('returns correct channel for gentle', () => {
-    expect(getChannelId('gentle')).toBe('alarm-gentle');
+    expect(getChannelId('gentle')).toBe('alarm-gentle-v2');
   });
   it('returns correct channel for aggressive', () => {
-    expect(getChannelId('aggressive')).toBe('alarm-aggressive');
+    expect(getChannelId('aggressive')).toBe('alarm-aggressive-v2');
   });
 });
 describe('getSoundFile', () => {

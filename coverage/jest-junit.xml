@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="85" failures="0" errors="0" time="16.783">
+  <testsuite name="src/features/alarm/services/__tests__/scheduler.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-17T14:34:59" time="2.274" tests="7">
+    <testcase classname="scheduleAlarmSequence" name="cancels existing before scheduling new" time="0.006">
+    </testcase>
+    <testcase classname="scheduleAlarmSequence" name="does not schedule if disabled" time="0">
+    </testcase>
+    <testcase classname="scheduleAlarmSequence" name="uses deterministic IDs" time="0.001">
+    </testcase>
+    <testcase classname="scheduleAlarmSequence" name="uses sentinel day 7 for one-time" time="0.001">
+    </testcase>
+    <testcase classname="scheduleAlarmSequence" name="passes correct params to native module" time="0.001">
+    </testcase>
+    <testcase classname="cancelAlarmNotifications" name="cancels all IDs including snooze" time="0.001">
+    </testcase>
+    <testcase classname="dismissAllRemaining" name="stops ringing and cancels after current index for the given day only" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="src/features/alarm/utils/__tests__/time.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-17T14:34:59" time="2.239" tests="16">
+    <testcase classname="to24Hour" name="converts 12 AM to 0" time="0.006">
+    </testcase>
+    <testcase classname="to24Hour" name="converts 12 PM to 12" time="0">
+    </testcase>
+    <testcase classname="to24Hour" name="converts 7 AM to 7" time="0.001">
+    </testcase>
+    <testcase classname="to24Hour" name="converts 7 PM to 19" time="0">
+    </testcase>
+    <testcase classname="to24Hour" name="converts 11 PM to 23" time="0.001">
+    </testcase>
+    <testcase classname="to12Hour" name="converts 0 to 12 AM" time="0.001">
+    </testcase>
+    <testcase classname="to12Hour" name="converts 12 to 12 PM" time="0">
+    </testcase>
+    <testcase classname="to12Hour" name="converts 7 to 7 AM" time="0.001">
+    </testcase>
+    <testcase classname="to12Hour" name="converts 19 to 7 PM" time="0.001">
+    </testcase>
+    <testcase classname="to12Hour" name="converts 23 to 11 PM" time="0">
+    </testcase>
+    <testcase classname="formatTime12" name="formats 7:00 AM" time="0.001">
+    </testcase>
+    <testcase classname="formatTime12" name="formats 0:05 as 12:05 AM" time="0">
+    </testcase>
+    <testcase classname="formatTime12" name="formats 13:30 as 1:30 PM" time="0.001">
+    </testcase>
+    <testcase classname="minutesOfDay" name="converts 7:00 to 420" time="0">
+    </testcase>
+    <testcase classname="minutesOfDay" name="converts 0:00 to 0" time="0">
+    </testcase>
+    <testcase classname="minutesOfDay" name="converts 23:59 to 1439" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="src/features/alarm/services/__tests__/sequence-generator.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-17T14:34:59" time="2.264" tests="11">
+    <testcase classname="generateSequence" name="generates correct number of alarms" time="0.006">
+    </testcase>
+    <testcase classname="generateSequence" name="generates correct times" time="0.002">
+    </testcase>
+    <testcase classname="generateSequence" name="sets sequence indices" time="0.002">
+    </testcase>
+    <testcase classname="generateSequence" name="handles midnight boundary wrap" time="0.001">
+    </testcase>
+    <testcase classname="generateSequence" name="caps sequence at 64 entries" time="0">
+    </testcase>
+    <testcase classname="generateSequence" name="assigns intensity tiers progressively" time="0.001">
+    </testcase>
+    <testcase classname="generateSequence" name="formats display strings correctly" time="0">
+    </testcase>
+    <testcase classname="generateSequence" name="handles minimum duration/interval ratio" time="0">
+    </testcase>
+    <testcase classname="countScheduledNotifications" name="counts notifications for multiple enabled alarms" time="0.001">
+    </testcase>
+    <testcase classname="countScheduledNotifications" name="excludes disabled alarms" time="0">
+    </testcase>
+    <testcase classname="countScheduledNotifications" name="counts one-time alarms as 1 day" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="src/features/alarm/services/__tests__/intensity.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-17T14:34:59" time="2.264" tests="6">
+    <testcase classname="getChannelId" name="returns correct channel for gentle" time="0.005">
+    </testcase>
+    <testcase classname="getChannelId" name="returns correct channel for aggressive" time="0">
+    </testcase>
+    <testcase classname="getSoundFile" name="returns correct sound for gentle" time="0.001">
+    </testcase>
+    <testcase classname="getSoundFile" name="returns correct sound for strong" time="0">
+    </testcase>
+    <testcase classname="getVibrationPattern" name="returns single pulse for gentle" time="0.001">
+    </testcase>
+    <testcase classname="getVibrationPattern" name="returns long pattern for aggressive" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="src/features/alarm/stores/__tests__/use-alarm-store.test.ts" errors="0" failures="0" skipped="0" timestamp="2026-03-17T14:34:59" time="2.722" tests="5">
+    <testcase classname="useAlarmStore" name="starts with empty alarms" time="0.023">
+    </testcase>
+    <testcase classname="useAlarmStore" name="adds an alarm" time="0.004">
+    </testcase>
+    <testcase classname="useAlarmStore" name="updates an alarm" time="0.003">
+    </testcase>
+    <testcase classname="useAlarmStore" name="deletes an alarm" time="0.002">
+    </testcase>
+    <testcase classname="useAlarmStore" name="toggles alarm enabled state" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="src/components/ui/input.test.tsx" errors="0" failures="0" skipped="0" timestamp="2026-03-17T14:34:59" time="9.028" tests="11">
+    <testcase classname="input component " name="renders correctly " time="0.038">
+    </testcase>
+    <testcase classname="input component " name="should use the right direction for rtl layout" time="0.003">
+    </testcase>
+    <testcase classname="input component " name="should use the right direction for ltr layout" time="0.003">
+    </testcase>
+    <testcase classname="input component " name="should render the placeholder correctly " time="0.003">
+    </testcase>
+    <testcase classname="input component " name="should render the label correctly " time="0.004">
+    </testcase>
+    <testcase classname="input component " name="should render the error message correctly " time="0.002">
+    </testcase>
+    <testcase classname="input component " name="should render the label, error message &amp; placeholder correctly " time="0.004">
+    </testcase>
+    <testcase classname="input component " name="should trigger onFocus event correctly " time="0.019">
+    </testcase>
+    <testcase classname="input component " name="should trigger onBlur event correctly " time="0.015">
+    </testcase>
+    <testcase classname="input component " name="should trigger onChangeText event correctly" time="0.017">
+    </testcase>
+    <testcase classname="input component " name="should be disabled when disabled prop is true" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="src/components/ui/button.test.tsx" errors="0" failures="0" skipped="0" timestamp="2026-03-17T14:34:59" time="9.117" tests="11">
+    <testcase classname="button component " name="should render correctly " time="0.156">
+    </testcase>
+    <testcase classname="button component " name="should render correctly if we add explicit child " time="0.003">
+    </testcase>
+    <testcase classname="button component " name="should render the label correctly" time="0.003">
+    </testcase>
+    <testcase classname="button component " name="should render the loading indicator correctly" time="0.051">
+    </testcase>
+    <testcase classname="button component " name="should call onClick handler when clicked" time="0.14">
+    </testcase>
+    <testcase classname="button component " name="should be disabled when loading" time="0.011">
+    </testcase>
+    <testcase classname="button component " name="should be disabled when disabled prop is true" time="0.003">
+    </testcase>
+    <testcase classname="button component " name="shouldn&apos;t call onClick when disabled" time="0.005">
+    </testcase>
+    <testcase classname="button component " name="should apply correct styles based on size prop" time="0.004">
+    </testcase>
+    <testcase classname="button component " name="should apply correct styles for label when variant is secondary" time="0.004">
+    </testcase>
+    <testcase classname="button component " name="should apply correct styles for label when is disabled" time="0.003">
+    </testcase>
+  </testsuite>
+  <testsuite name="src/components/ui/checkbox.test.tsx" errors="0" failures="0" skipped="0" timestamp="2026-03-17T14:34:59" time="11.255" tests="9">
+    <testcase classname="checkbox, Radio &amp; Switch components " name="&lt;Checkbox /&gt; renders correctly and call on change on Press" time="0.209">
+    </testcase>
+    <testcase classname="checkbox, Radio &amp; Switch components " name="&lt;CheckBox/&gt; shouldn&apos;t change value while disabled" time="0.009">
+    </testcase>
+    <testcase classname="checkbox, Radio &amp; Switch components " name="&lt;CheckBox/&gt; Should render the correct label" time="0.013">
+    </testcase>
+    <testcase classname="checkbox, Radio &amp; Switch components " name="&lt;Radio /&gt; renders correctly and call on change on Press" time="0.138">
+    </testcase>
+    <testcase classname="checkbox, Radio &amp; Switch components " name="&lt;Radio /&gt; should render the correct label" time="0.139">
+    </testcase>
+    <testcase classname="checkbox, Radio &amp; Switch components " name="&lt;Radio/&gt; shouldn&apos;t change value while disabled" time="0.005">
+    </testcase>
+    <testcase classname="checkbox, Radio &amp; Switch components " name="&lt;Switch /&gt; renders correctly and call on change on Press" time="0.137">
+    </testcase>
+    <testcase classname="checkbox, Radio &amp; Switch components " name="&lt;Switch /&gt; should render the correct label" time="0.137">
+    </testcase>
+    <testcase classname="checkbox, Radio &amp; Switch components " name="&lt;Switch/&gt; shouldn&apos;t change value while disabled" time="0.005">
+    </testcase>
+  </testsuite>
+  <testsuite name="src/components/ui/select.test.tsx" errors="0" failures="0" skipped="0" timestamp="2026-03-17T14:34:59" time="11.627" tests="5">
+    <testcase classname="select component " name="should render correctly " time="0.053">
+    </testcase>
+    <testcase classname="select component " name="should render the label correctly " time="0.008">
+    </testcase>
+    <testcase classname="select component " name="should render the error correctly " time="0.009">
+    </testcase>
+    <testcase classname="select component " name="should open options modal on press" time="0.143">
+    </testcase>
+    <testcase classname="select component " name="should call onSelect on selecting an option" time="0.281">
+    </testcase>
+  </testsuite>
+  <testsuite name="src/features/auth/components/login-form.test.tsx" errors="0" failures="0" skipped="0" timestamp="2026-03-17T14:34:59" time="13.996" tests="4">
+    <testcase classname="loginForm Form " name="renders correctly" time="0.049">
+    </testcase>
+    <testcase classname="loginForm Form " name="should display required error when values are empty" time="0.158">
+    </testcase>
+    <testcase classname="loginForm Form " name="should display matching error when email is invalid" time="0.185">
+    </testcase>
+    <testcase classname="loginForm Form " name="should call LoginForm with correct values when values are valid" time="0.212">
+    </testcase>
+  </testsuite>
+</testsuites>

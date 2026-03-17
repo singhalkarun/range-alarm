@@ -23,7 +23,8 @@ export {
   TouchableOpacity,
   View,
 } from 'react-native';
-export { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context';
 
-// Apply withUniwind to Svg to add className support
+// Apply withUniwind to third-party components to add className support
+export const SafeAreaView = withUniwind(RNSafeAreaView);
 export const StyledSvg = withUniwind(Svg);

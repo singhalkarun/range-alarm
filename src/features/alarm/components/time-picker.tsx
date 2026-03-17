@@ -41,10 +41,10 @@ function ArrowButton({
   return (
     <Pressable
       onPress={onPress}
-      className="h-10 w-full items-center justify-center"
+      className="size-11 items-center justify-center rounded-full border border-border bg-card"
       testID={testID}
     >
-      <Text className="text-2xl text-cyan-400">
+      <Text className="text-xl text-cyan-400">
         {direction === 'up' ? '\u25B2' : '\u25BC'}
       </Text>
     </Pressable>
@@ -68,7 +68,7 @@ export function TimePicker({
           onPress={() => onChangeHour(wrapHour(hour + 1))}
           testID="hour-up"
         />
-        <Text className="text-6xl font-bold text-white">
+        <Text className="text-[64px] font-bold text-white" style={{ letterSpacing: -2 }}>
           {String(hour).padStart(2, '0')}
         </Text>
         <ArrowButton
@@ -78,7 +78,7 @@ export function TimePicker({
         />
       </View>
 
-      <Text className="text-6xl font-light text-muted-foreground">:</Text>
+      <Text className="text-[64px] font-light text-cyan-400">:</Text>
 
       {/* Minute column */}
       <View className="items-center">
@@ -87,7 +87,7 @@ export function TimePicker({
           onPress={() => onChangeMinute(wrapMinute(minute + 1))}
           testID="minute-up"
         />
-        <Text className="text-6xl font-bold text-white">
+        <Text className="text-[64px] font-bold text-white" style={{ letterSpacing: -2 }}>
           {String(minute).padStart(2, '0')}
         </Text>
         <ArrowButton
@@ -98,16 +98,18 @@ export function TimePicker({
       </View>
 
       {/* AM/PM column */}
-      <View className="ml-2 gap-2">
+      <View className="ml-2 gap-1" style={{ marginTop: 30 }}>
         <Pressable
           onPress={() => onChangeAmPm('AM')}
-          className={`rounded-lg px-4 py-2 ${
-            ampm === 'AM' ? 'bg-cyan-400' : 'bg-navy-600'
+          className={`rounded-lg border px-3 py-1.5 ${
+            ampm === 'AM'
+              ? 'border-cyan-400 bg-cyan-400'
+              : 'border-border bg-card'
           }`}
           testID="am-btn"
         >
           <Text
-            className={`font-semibold ${
+            className={`text-sm font-semibold ${
               ampm === 'AM' ? 'text-black' : 'text-muted-foreground'
             }`}
           >
@@ -116,13 +118,15 @@ export function TimePicker({
         </Pressable>
         <Pressable
           onPress={() => onChangeAmPm('PM')}
-          className={`rounded-lg px-4 py-2 ${
-            ampm === 'PM' ? 'bg-cyan-400' : 'bg-navy-600'
+          className={`rounded-lg border px-3 py-1.5 ${
+            ampm === 'PM'
+              ? 'border-cyan-400 bg-cyan-400'
+              : 'border-border bg-card'
           }`}
           testID="pm-btn"
         >
           <Text
-            className={`font-semibold ${
+            className={`text-sm font-semibold ${
               ampm === 'PM' ? 'text-black' : 'text-muted-foreground'
             }`}
           >
