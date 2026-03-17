@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { APP_TAGLINE, APP_STORE_URL, PLAY_STORE_URL } from '@/lib/constants';
+import { PhoneMockup } from './phone-mockup';
 
 export function HeroSection() {
   return (
@@ -35,11 +36,7 @@ export function HeroSection() {
             </div>
           </div>
           <div className="flex flex-1 items-center justify-center">
-            <div className="flex h-[500px] w-[260px] items-center justify-center rounded-[3rem] border-2 border-border bg-navy-700 p-4">
-              <p className="text-center text-sm text-muted-foreground">
-                App Screenshot
-              </p>
-            </div>
+            <PhoneMockup />
           </div>
         </div>
       </div>
