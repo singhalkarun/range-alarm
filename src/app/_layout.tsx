@@ -68,7 +68,7 @@ export default function RootLayout() {
           snoozeCount: launchData.snoozeCount ?? 0,
           maxSnoozeCount: launchData.maxSnoozeCount ?? 3,
         });
-        router.push('/ringing');
+        router.navigate('/ringing');
       }
     }
     setup();

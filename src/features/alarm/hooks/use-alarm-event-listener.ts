@@ -26,15 +26,22 @@ export function useAlarmEventListener() {
         snoozeCount: payload.snoozeCount ?? 0,
         maxSnoozeCount: payload.maxSnoozeCount ?? DEFAULT_MAX_SNOOZE_COUNT,
       });
-      router.push('/ringing');
+      // Use navigate (not push) to avoid stacking multiple ringing screens
+      // when snooze alarms fire repeatedly
+      router.navigate('/ringing');
     });
 
     stoppedSub.current = addAlarmListener('onAlarmStopped', () => {
-      useRingingStore.getState().clear();
+      // Only clear if we're not already navigating away (goBack handles its own clear)
+      const { activeAlarmId } = useRingingStore.getState();
+      if (activeAlarmId) {
+        useRingingStore.getState().clear();
+      }
     });
 
     snoozedSub.current = addAlarmListener('onAlarmSnoozed', () => {
-      useRingingStore.getState().clear();
+      // Don't clear on snooze — the ringing screen's goBack() handles clearing.
+      // Clearing here would race with the next snooze alarm's onAlarmFired.
     });
 
     return () => {
