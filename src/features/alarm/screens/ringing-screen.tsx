@@ -51,40 +51,35 @@ function useCurrentTime() {
 
 function RingingActions({
   onSnooze,
-  onDismissThis,
-  onDismissAll,
+  onStop,
+  onImUp,
   snoozeDurationMinutes,
   snoozeCount,
   maxSnoozeCount,
+  isLastInSequence,
 }: {
   onSnooze: () => void;
-  onDismissThis: () => void;
-  onDismissAll: () => void;
+  onStop: () => void;
+  onImUp: () => void;
   snoozeDurationMinutes: number;
   snoozeCount: number;
   maxSnoozeCount: number;
+  isLastInSequence: boolean;
 }) {
   const snoozesRemaining = maxSnoozeCount - snoozeCount;
   const canSnooze = snoozesRemaining > 0;
 
   return (
     <View className="w-full gap-3" style={{ maxWidth: 300 }}>
-      <Pressable
-        onPress={onSnooze}
-        disabled={!canSnooze}
-        className={`items-center rounded-[14px] border-[1.5px] py-[18px] ${
-          canSnooze
-            ? 'border-cyan-400/30 bg-cyan-400/15'
-            : 'border-border bg-card opacity-40'
-        }`}
-        testID="btn-snooze"
-      >
-        <Text className={`font-bold ${canSnooze ? 'text-cyan-400' : 'text-muted-foreground'}`}>
-          {canSnooze
-            ? `Snooze ${snoozeDurationMinutes} min`
-            : 'No snoozes left'}
-        </Text>
-        {canSnooze && (
+      {canSnooze && (
+        <Pressable
+          onPress={onSnooze}
+          className="items-center rounded-[14px] border-[1.5px] border-cyan-400/30 bg-cyan-400/15 py-[18px]"
+          testID="btn-snooze"
+        >
+          <Text className="font-bold text-cyan-400">
+            {`Snooze ${snoozeDurationMinutes} min`}
+          </Text>
           <Text className="mt-1 text-xs text-muted-foreground">
             {snoozesRemaining}
             {' '}
@@ -92,25 +87,33 @@ function RingingActions({
             {' '}
             remaining
           </Text>
-        )}
-      </Pressable>
+        </Pressable>
+      )}
+
+      {!isLastInSequence && (
+        <Pressable
+          onPress={onStop}
+          className="items-center rounded-[14px] border border-border bg-card py-4"
+          testID="btn-stop"
+        >
+          <Text className="font-bold text-white">Stop</Text>
+          <Text className="mt-1 text-xs text-muted-foreground">
+            Next alarm in sequence will still ring
+          </Text>
+        </Pressable>
+      )}
 
       <Pressable
-        onPress={onDismissThis}
-        className="items-center rounded-[14px] border border-border bg-card py-4"
-        testID="btn-dismiss-this"
+        onPress={onImUp}
+        className="items-center rounded-[14px] bg-green-600 py-[18px]"
+        testID="btn-im-up"
       >
-        <Text className="font-bold text-muted-foreground">
-          Dismiss This
+        <Text className="font-bold text-white">
+          I'm Up
         </Text>
-      </Pressable>
-
-      <Pressable
-        onPress={onDismissAll}
-        className="items-center rounded-[14px] bg-danger-500 py-[18px]"
-        testID="btn-dismiss-all"
-      >
-        <Text className="font-bold text-white">Dismiss All</Text>
+        <Text className="mt-0.5 text-xs text-green-200">
+          {isLastInSequence ? 'Stop alarm' : 'Cancel all remaining alarms'}
+        </Text>
       </Pressable>
     </View>
   );
@@ -151,12 +154,12 @@ export function RingingScreen() {
     goBack();
   }, [activeAlarmId, snoozeDurationMinutes, snoozeCount, maxSnoozeCount, goBack]);
 
-  const handleDismissThis = useCallback(() => {
+  const handleStop = useCallback(() => {
     stopRinging();
     goBack();
   }, [goBack]);
 
-  const handleDismissAll = useCallback(async () => {
+  const handleImUp = useCallback(async () => {
     stopRinging();
     if (alarm) {
       const sequence = generateSequence(alarm);
@@ -205,11 +208,12 @@ export function RingingScreen() {
 
       <RingingActions
         onSnooze={handleSnooze}
-        onDismissThis={handleDismissThis}
-        onDismissAll={handleDismissAll}
+        onStop={handleStop}
+        onImUp={handleImUp}
         snoozeDurationMinutes={snoozeDurationMinutes}
         snoozeCount={snoozeCount}
         maxSnoozeCount={maxSnoozeCount}
+        isLastInSequence={currentSequenceIndex + 1 >= totalInSequence}
       />
     </SafeAreaView>
   );
