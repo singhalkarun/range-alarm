@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Navy palette (backgrounds) */
+  --color-navy-900: #060b14;
+  --color-navy-800: #0D1B2A;
+  --color-navy-700: #1B2838;
+  --color-navy-600: #243447;
+
+  /* Cyan accent */
+  --color-cyan-400: #00D4FF;
+  --color-cyan-500: #00bfe6;
+  --color-cyan-600: #00a8cc;
+
+  /* Charcoal (text) */
+  --color-charcoal-50: #F2F2F2;
+  --color-charcoal-100: #E5E5E5;
+  --color-charcoal-200: #C9C9C9;
+  --color-charcoal-300: #B0B0B0;
+  --color-charcoal-400: #969696;
+  --color-charcoal-500: #7D7D7D;
+
+  /* Semantic tokens (dark mode is the default and only mode) */
+  --color-background: #0D1B2A;
+  --color-foreground: #f0f0f0;
+  --color-card: #1B2838;
+  --color-card-foreground: #f0f0f0;
+  --color-muted: #243447;
+  --color-muted-foreground: #8892A0;
+  --color-border: #2A3A4E;
+}
