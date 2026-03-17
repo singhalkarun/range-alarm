@@ -5,7 +5,7 @@ import * as Crypto from 'expo-crypto';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Pressable, ScrollView, View } from 'react-native';
+import { Alert, Pressable, ScrollView, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { SafeAreaView, Text } from '@/components/ui';
 import { DaySelector } from '../components/day-selector';
@@ -26,16 +26,17 @@ type Props = {
   initialValues?: Alarm;
 };
 
+const TOTAL_STEPS = 4;
+
 function StepBars({ step }: { step: number }) {
   return (
     <View className="flex-row gap-2 px-6 pb-5">
-      {[1, 2, 3].map(s => (
+      {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(s => (
         <View
           key={s}
           className={`h-1 flex-1 rounded-sm ${
             s <= step ? 'bg-cyan-400' : 'bg-muted'
           }`}
-          style={s === step ? { opacity: 1 } : s < step ? { opacity: 1 } : {}}
         />
       ))}
     </View>
@@ -67,7 +68,7 @@ function BottomNav({
           <Path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
         </Svg>
       </Pressable>
-      {step < 3
+      {step < TOTAL_STEPS
         ? (
             <Pressable
               onPress={onNext}
@@ -77,7 +78,7 @@ function BottomNav({
             >
               <View className="flex-row items-center gap-2">
                 <Text className="text-base font-bold text-white">
-                  {step === 1 ? 'Next' : 'Preview'}
+                  {step === TOTAL_STEPS - 1 ? 'Preview' : 'Next'}
                 </Text>
                 <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
                   <Path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
@@ -104,12 +105,13 @@ function BottomNav({
 const STEP_SUBTITLES = [
   'When should your alarm range begin?',
   'How long and how often should alarms ring?',
+  'Pick a sound for your alarm',
   'Here\'s your alarm sequence',
 ] as const;
 
 export function CreateScreen({ initialValues }: Props) {
   const router = useRouter();
-  const { saveAlarm } = useScheduleAlarm();
+  const { saveAlarm, removeAlarm } = useScheduleAlarm();
 
   const initial12 = initialValues
     ? to12Hour(initialValues.startHour)
@@ -127,7 +129,7 @@ export function CreateScreen({ initialValues }: Props) {
   const [soundUri, setSoundUri] = useState<string | undefined>(initialValues?.soundUri);
 
   useEffect(() => {
-    if (step !== 2) {
+    if (step !== 3) {
       stopPreview();
     }
   }, [step]);
@@ -162,20 +164,50 @@ export function CreateScreen({ initialValues }: Props) {
     }
   }, [previewAlarm, initialValues?.id, saveAlarm, router]);
 
+  const handleDelete = useCallback(() => {
+    if (!initialValues) return;
+    Alert.alert(
+      'Delete Alarm',
+      'Are you sure you want to delete this alarm?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            await removeAlarm(initialValues);
+            router.back();
+          },
+        },
+      ],
+    );
+  }, [initialValues, removeAlarm, router]);
+
   const isEdit = !!initialValues;
   const stepTitle = step === 1
     ? 'Pick Start Time'
     : step === 2
       ? 'Set Your Range'
-      : 'Preview Alarms';
+      : step === 3
+        ? 'Choose Sound'
+        : 'Preview Alarms';
 
   return (
     <SafeAreaView className="flex-1 bg-background">
       {/* Header */}
-      <View style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
+      <View className="flex-row items-center justify-between" style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
         <Text className="text-lg font-bold text-white">
           {isEdit ? 'Edit Range Alarm' : 'New Range Alarm'}
         </Text>
+        {isEdit && (
+          <Pressable
+            onPress={handleDelete}
+            className="rounded-lg bg-danger-500/15 px-3 py-1.5"
+            testID="btn-delete-alarm"
+          >
+            <Text className="text-sm font-semibold text-danger-500">Delete</Text>
+          </Pressable>
+        )}
       </View>
 
       <StepBars step={step} />
@@ -208,11 +240,16 @@ export function CreateScreen({ initialValues }: Props) {
             <IntervalSelector value={interval} onChange={setInterval} maxInterval={duration} />
             <SnoozeSelector value={snoozeDuration} onChange={setSnoozeDuration} />
             <MaxSnoozeSelector value={maxSnoozeCount} onChange={setMaxSnoozeCount} />
-            <SoundSelector value={soundUri} onChange={setSoundUri} />
           </View>
         )}
 
         {step === 3 && (
+          <View className="gap-5">
+            <SoundSelector value={soundUri} onChange={setSoundUri} />
+          </View>
+        )}
+
+        {step === 4 && (
           <View className="gap-5">
             <SequencePreview sequence={sequence} durationMinutes={duration} intervalMinutes={interval} />
             <DaySelector selectedDays={days} onToggleDay={toggleDay} />
