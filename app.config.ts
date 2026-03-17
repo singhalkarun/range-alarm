@@ -8,6 +8,36 @@ import 'tsx/cjs';
 // eslint-disable-next-line perfectionist/sort-imports
 import Env from './env';
 
+/**
+ * Inline config plugin that copies alarm sound files to android res/raw.
+ */
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { withDangerousMod } = require('expo/config-plugins');
+const fs = require('fs');
+const path = require('path');
+
+const withAlarmSounds = (config: ExpoConfig): ExpoConfig => {
+  return withDangerousMod(config, [
+    'android',
+    (mod: { modResults: unknown; modRequest: { projectRoot: string; platformProjectRoot: string } }) => {
+      const rawDir = path.join(mod.modRequest.platformProjectRoot, 'app/src/main/res/raw');
+      if (!fs.existsSync(rawDir)) {
+        fs.mkdirSync(rawDir, { recursive: true });
+      }
+
+      const soundFiles = ['gentle.wav', 'moderate.wav', 'strong.wav', 'aggressive.wav'];
+      for (const file of soundFiles) {
+        const src = path.join(mod.modRequest.projectRoot, 'assets/sounds', file);
+        const dest = path.join(rawDir, file);
+        if (fs.existsSync(src)) {
+          fs.copyFileSync(src, dest);
+        }
+      }
+      return mod;
+    },
+  ]);
+};
+
 const EXPO_ACCOUNT_OWNER = 'singhalkarun';
 const EAS_PROJECT_ID = 'fb20d241-bcf0-4a14-abae-58238da34f40';
 
@@ -41,7 +71,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   newArchEnabled: true,
   updates: {
     fallbackToCacheTimeout: 0,
+    url: `https://u.expo.dev/${EAS_PROJECT_ID}`,
   },
+  runtimeVersion: '1.0.0',
   assetBundlePatterns: ['**/*'],
   ios: {
     supportsTablet: true,
@@ -113,7 +145,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     'expo-localization',
     'expo-router',
-    'expo-notifications',
+    withAlarmSounds as unknown as string,
     ['app-icon-badge', appIconBadgeConfig],
     ['react-native-edge-to-edge'],
   ],

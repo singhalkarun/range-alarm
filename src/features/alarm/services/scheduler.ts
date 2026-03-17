@@ -1,17 +1,20 @@
 // src/features/alarm/services/scheduler.ts
 
-import type { Alarm, IntensityTier } from '../types';
-import * as Notifications from 'expo-notifications';
+import type { Alarm } from '../types';
 
-import { Platform } from 'react-native';
-import { CHANNEL_CONFIG } from '../constants';
-import { getChannelId, getSoundFile, getVibrationPattern } from './intensity';
+import { DEFAULT_MAX_SNOOZE_COUNT } from '../constants';
+import {
+  cancelAlarm,
+  cancelAllAlarms,
+  scheduleAlarm,
+  stopRinging,
+} from 'modules/alarm-fullscreen';
 import { generateSequence } from './sequence-generator';
 
 /**
- * Build a deterministic notification ID for an alarm sequence item.
+ * Build a deterministic alarm entry ID.
  */
-function buildNotificationId(
+function buildAlarmEntryId(
   alarmId: string,
   dayIndex: number,
   sequenceIndex: number,
@@ -20,52 +23,11 @@ function buildNotificationId(
 }
 
 /**
- * Create Android notification channels for all intensity tiers.
- * Safe to call multiple times — channels are updated if they already exist.
- */
-export async function setupNotificationChannels(): Promise<void> {
-  if (Platform.OS !== 'android')
-    return;
-
-  for (const [tier, config] of Object.entries(CHANNEL_CONFIG)) {
-    await Notifications.setNotificationChannelAsync(config.id, {
-      name: config.name,
-      importance: config.importance as Notifications.AndroidImportance,
-      sound: getSoundFile(tier as IntensityTier),
-      vibrationPattern: getVibrationPattern(tier as IntensityTier),
-      lockscreenVisibility:
-        Notifications.AndroidNotificationVisibility.PUBLIC,
-    });
-  }
-}
-
-/**
  * Get the day indices used for scheduling. For recurring alarms, these are
- * the selected days. For one-time alarms, we use a sentinel value (7) so
- * the notification ID is stable regardless of when cancel is called.
+ * the selected days. For one-time alarms, we use a sentinel value (7).
  */
 function getScheduleDays(alarm: Alarm): number[] {
-  return alarm.days.length > 0 ? alarm.days : [7]; // 7 = one-time sentinel
-}
-
-/**
- * Cancel all scheduled notifications for a given alarm.
- */
-export async function cancelAlarmNotifications(alarm: Alarm): Promise<void> {
-  const sequence = generateSequence(alarm);
-  const days = getScheduleDays(alarm);
-
-  const cancelPromises: Promise<void>[] = [];
-  for (const day of days) {
-    for (const item of sequence) {
-      cancelPromises.push(
-        Notifications.cancelScheduledNotificationAsync(
-          buildNotificationId(alarm.id, day, item.sequenceIndex),
-        ),
-      );
-    }
-  }
-  await Promise.all(cancelPromises);
+  return alarm.days.length > 0 ? alarm.days : [7];
 }
 
 /**
@@ -82,157 +44,87 @@ function getNextOccurrence(
 
   const currentDay = now.getDay();
   let daysUntil = dayOfWeek - currentDay;
-  if (daysUntil < 0)
-    daysUntil += 7;
-  if (daysUntil === 0 && target <= now)
-    daysUntil = 7;
+  if (daysUntil < 0) daysUntil += 7;
+  if (daysUntil === 0 && target <= now) daysUntil = 7;
 
   target.setDate(target.getDate() + daysUntil);
   return target;
 }
 
 /**
- * Schedule all notifications for an alarm's sequence across 7 days.
+ * Cancel all scheduled alarms for a given alarm.
  */
-export async function scheduleAlarmSequence(alarm: Alarm): Promise<void> {
-  // Cancel existing first
-  await cancelAlarmNotifications(alarm);
-
-  if (!alarm.enabled)
-    return;
-
+export async function cancelAlarmNotifications(alarm: Alarm): Promise<void> {
   const sequence = generateSequence(alarm);
   const days = getScheduleDays(alarm);
 
   for (const day of days) {
     for (const item of sequence) {
-      const triggerDate = getNextOccurrence(day, item.hour24, item.minute);
-      const notificationId = buildNotificationId(
-        alarm.id,
-        day,
-        item.sequenceIndex,
-      );
+      cancelAlarm(buildAlarmEntryId(alarm.id, day, item.sequenceIndex));
+    }
+  }
+  // Also cancel any snooze
+  cancelAlarm(`${alarm.id}_snooze`);
+}
 
-      await Notifications.scheduleNotificationAsync({
-        identifier: notificationId,
-        content: {
-          title: alarm.label || 'Adaptive Wake',
-          body: `Alarm ${item.sequenceIndex + 1} of ${sequence.length}`,
-          sound: getSoundFile(item.intensityTier),
-          data: {
-            alarmId: alarm.id,
-            sequenceIndex: item.sequenceIndex,
-            totalInSequence: sequence.length,
-            intensityTier: item.intensityTier,
-            snoozeDurationMinutes: alarm.snoozeDurationMinutes,
-          },
-          ...(Platform.OS === 'android' && {
-            channelId: getChannelId(item.intensityTier),
-          }),
-        },
-        trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.DATE,
-          date: triggerDate,
-        },
+/**
+ * Schedule all alarms for an alarm's sequence.
+ */
+export async function scheduleAlarmSequence(alarm: Alarm): Promise<void> {
+  await cancelAlarmNotifications(alarm);
+
+  if (!alarm.enabled) return;
+
+  const sequence = generateSequence(alarm);
+  const days = getScheduleDays(alarm);
+  const isRecurring = alarm.days.length > 0;
+
+  for (const day of days) {
+    for (const item of sequence) {
+      const triggerDate = getNextOccurrence(day, item.hour24, item.minute);
+
+      scheduleAlarm({
+        id: buildAlarmEntryId(alarm.id, day, item.sequenceIndex),
+        triggerTimestamp: triggerDate.getTime(),
+        intensityTier: item.intensityTier,
+        label: alarm.label || '',
+        alarmId: alarm.id,
+        sequenceIndex: item.sequenceIndex,
+        totalInSequence: sequence.length,
+        dayIndex: day,
+        snoozeDurationMinutes: alarm.snoozeDurationMinutes,
+        maxSnoozeCount: alarm.maxSnoozeCount ?? DEFAULT_MAX_SNOOZE_COUNT,
+        snoozeCount: 0,
+        isRecurring,
       });
     }
   }
 }
 
-type SnoozeParams = {
-  alarmId: string;
-  snoozeDurationMinutes: number;
-  intensityTier: IntensityTier;
-  sequenceIndex: number;
-  totalInSequence: number;
-};
-
 /**
- * Schedule a snooze notification for the given alarm.
- */
-export async function scheduleSnooze(params: SnoozeParams): Promise<void> {
-  const {
-    alarmId,
-    snoozeDurationMinutes,
-    intensityTier,
-    sequenceIndex,
-    totalInSequence,
-  } = params;
-  const snoozeId = `${alarmId}_snooze`;
-
-  // Cancel any existing snooze for this alarm
-  await Notifications.cancelScheduledNotificationAsync(snoozeId).catch(
-    () => {},
-  );
-
-  const triggerDate = new Date(
-    Date.now() + snoozeDurationMinutes * 60 * 1000,
-  );
-
-  await Notifications.scheduleNotificationAsync({
-    identifier: snoozeId,
-    content: {
-      title: 'Snooze — Adaptive Wake',
-      body: `Alarm ${sequenceIndex + 1} of ${totalInSequence} (snoozed)`,
-      sound: getSoundFile(intensityTier),
-      data: {
-        alarmId,
-        sequenceIndex,
-        totalInSequence,
-        intensityTier,
-        snoozeDurationMinutes,
-        isSnooze: true,
-      },
-      ...(Platform.OS === 'android' && {
-        channelId: getChannelId(intensityTier),
-      }),
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DATE,
-      date: triggerDate,
-    },
-  });
-}
-
-/**
- * Cancel all remaining notifications in today's sequence for an alarm
- * after the given sequence index (for "Dismiss All").
+ * Dismiss all remaining notifications in the current day's sequence.
  */
 export async function dismissAllRemaining(
   alarm: Alarm,
   currentSequenceIndex: number,
+  dayIndex: number,
 ): Promise<void> {
-  const sequence = generateSequence(alarm);
-  const days = getScheduleDays(alarm);
-  const today = days.includes(new Date().getDay())
-    ? new Date().getDay()
-    : days[0];
+  stopRinging();
 
-  const cancelPromises: Promise<void>[] = [];
+  const sequence = generateSequence(alarm);
   for (const item of sequence) {
     if (item.sequenceIndex > currentSequenceIndex) {
-      cancelPromises.push(
-        Notifications.cancelScheduledNotificationAsync(
-          buildNotificationId(alarm.id, today, item.sequenceIndex),
-        ),
-      );
+      cancelAlarm(buildAlarmEntryId(alarm.id, dayIndex, item.sequenceIndex));
     }
   }
-
-  // Also cancel any active snooze
-  cancelPromises.push(
-    Notifications.cancelScheduledNotificationAsync(
-      `${alarm.id}_snooze`,
-    ).catch(() => {}),
-  );
-
-  await Promise.all(cancelPromises);
+  cancelAlarm(`${alarm.id}_snooze`);
 }
 
 /**
- * Re-schedule all enabled alarms. Called on app foreground and by background task.
+ * Re-schedule all enabled alarms.
  */
 export async function rescheduleAllAlarms(alarms: Alarm[]): Promise<void> {
+  cancelAllAlarms();
   for (const alarm of alarms) {
     if (alarm.enabled) {
       await scheduleAlarmSequence(alarm);
