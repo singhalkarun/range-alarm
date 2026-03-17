@@ -14,11 +14,20 @@ export const metadata: Metadata = {
   },
   description: APP_DESCRIPTION,
   metadataBase: new URL(WEBSITE_URL),
+  icons: {
+    icon: [
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
   openGraph: {
     title: `${APP_NAME} — Wake Up Gradually`,
     description: APP_DESCRIPTION,
     type: 'website',
-    images: ['/og-image.png'],
+    siteName: APP_NAME,
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: APP_NAME }],
   },
   twitter: {
     card: 'summary_large_image',
