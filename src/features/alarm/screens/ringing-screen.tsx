@@ -150,7 +150,11 @@ export function RingingScreen() {
   const handleSnooze = useCallback(async () => {
     if (!activeAlarmId) return;
     if (snoozeCount + 1 > maxSnoozeCount) return;
-    snoozeRinging(snoozeDurationMinutes);
+    const snoozed = snoozeRinging(snoozeDurationMinutes);
+    if (!snoozed) {
+      // Fallback: if native snooze failed (e.g. entry not found), at least stop the sound
+      stopRinging();
+    }
     goBack();
   }, [activeAlarmId, snoozeDurationMinutes, snoozeCount, maxSnoozeCount, goBack]);
 

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FlatList, Pressable, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
 import { Text } from '@/components/ui';
 import {
@@ -38,24 +38,23 @@ export function SoundSelector({ value, onChange }: Props) {
   const selected = value || 'bundled_gentle';
 
   return (
-    <View className="gap-3">
+    <View className="flex-1 gap-3">
       <Text className="text-[13px] font-semibold tracking-wider text-muted-foreground uppercase">
         Alarm Sound
       </Text>
-      <View className="rounded-xl border border-border bg-card" style={{ maxHeight: 220 }}>
-        <FlatList
-          data={sounds}
-          keyExtractor={(item) => item.uri}
-          renderItem={({ item }) => {
-            const isActive = item.uri === selected;
-            const isPlaying = item.uri === playingUri;
-            return (
+      <ScrollView className="flex-1 rounded-xl border border-border bg-card">
+        {sounds.map((item, index) => {
+          const isActive = item.uri === selected;
+          const isPlaying = item.uri === playingUri;
+          return (
+            <View key={item.uri}>
+              {index > 0 && <View className="mx-4 h-px bg-border" />}
               <Pressable
                 onPress={() => handlePress(item.uri)}
                 className={`flex-row items-center justify-between px-4 ${
                   isActive ? 'bg-cyan-400/10' : ''
                 }`}
-                style={{ height: 48 }}
+                style={{ height: 52 }}
               >
                 <Text
                   className={`flex-1 text-sm ${
@@ -72,11 +71,10 @@ export function SoundSelector({ value, onChange }: Props) {
                   <Text className="text-xs text-cyan-400">{'\u2713'}</Text>
                 )}
               </Pressable>
-            );
-          }}
-          ItemSeparatorComponent={() => <View className="mx-4 h-px bg-border" />}
-        />
-      </View>
+            </View>
+          );
+        })}
+      </ScrollView>
     </View>
   );
 }

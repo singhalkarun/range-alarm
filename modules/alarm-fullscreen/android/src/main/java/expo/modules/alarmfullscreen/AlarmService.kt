@@ -36,7 +36,12 @@ class AlarmService : Service() {
             }
         }
 
+        // Reference to the running instance for immediate sound stop
+        private var instance: AlarmService? = null
+
         fun stop(context: Context) {
+            // Immediately stop playback (don't wait for onDestroy)
+            instance?.stopPlayback()
             context.stopService(Intent(context, AlarmService::class.java))
         }
     }
@@ -74,6 +79,7 @@ class AlarmService : Service() {
 
         currentEntryId = entryId
         isRunning = true
+        instance = this
 
         // Must call startForeground within 5 seconds
         val notification = AlarmNotificationHelper.buildNotification(this, entry)
@@ -236,6 +242,7 @@ class AlarmService : Service() {
         }
         wakeLock = null
         isRunning = false
+        instance = null
         currentEntryId = null
         super.onDestroy()
     }

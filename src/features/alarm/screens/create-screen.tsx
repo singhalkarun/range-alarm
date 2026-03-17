@@ -212,50 +212,57 @@ export function CreateScreen({ initialValues }: Props) {
 
       <StepBars step={step} />
 
-      <ScrollView className="flex-1 px-6" keyboardShouldPersistTaps="handled">
-        {/* Step title & subtitle */}
-        <Text className="mb-1.5 text-[22px] font-bold text-white">
-          {stepTitle}
-        </Text>
-        <Text className="mb-6 text-sm text-muted-foreground">
-          {STEP_SUBTITLES[step - 1]}
-        </Text>
+      {step === 3
+        ? (
+            <View className="flex-1 px-6">
+              <Text className="mb-1.5 text-[22px] font-bold text-white">
+                {stepTitle}
+              </Text>
+              <Text className="mb-6 text-sm text-muted-foreground">
+                {STEP_SUBTITLES[step - 1]}
+              </Text>
+              <SoundSelector value={soundUri} onChange={setSoundUri} />
+            </View>
+          )
+        : (
+            <ScrollView className="flex-1 px-6" keyboardShouldPersistTaps="handled">
+              <Text className="mb-1.5 text-[22px] font-bold text-white">
+                {stepTitle}
+              </Text>
+              <Text className="mb-6 text-sm text-muted-foreground">
+                {STEP_SUBTITLES[step - 1]}
+              </Text>
 
-        {step === 1 && (
-          <View className="gap-6" style={{ paddingVertical: 30 }}>
-            <TimePicker
-              hour={hour}
-              minute={minute}
-              ampm={ampm}
-              onChangeHour={setHour}
-              onChangeMinute={setMinute}
-              onChangeAmPm={setAmpm}
-            />
-          </View>
-        )}
+              {step === 1 && (
+                <View className="gap-6" style={{ paddingVertical: 30 }}>
+                  <TimePicker
+                    hour={hour}
+                    minute={minute}
+                    ampm={ampm}
+                    onChangeHour={setHour}
+                    onChangeMinute={setMinute}
+                    onChangeAmPm={setAmpm}
+                  />
+                </View>
+              )}
 
-        {step === 2 && (
-          <View className="gap-7">
-            <DurationSlider value={duration} onChange={setDuration} />
-            <IntervalSelector value={interval} onChange={setInterval} maxInterval={duration} />
-            <SnoozeSelector value={snoozeDuration} onChange={setSnoozeDuration} />
-            <MaxSnoozeSelector value={maxSnoozeCount} onChange={setMaxSnoozeCount} />
-          </View>
-        )}
+              {step === 2 && (
+                <View className="gap-7">
+                  <DurationSlider value={duration} onChange={setDuration} />
+                  <IntervalSelector value={interval} onChange={setInterval} maxInterval={duration} />
+                  <SnoozeSelector value={snoozeDuration} onChange={setSnoozeDuration} />
+                  <MaxSnoozeSelector value={maxSnoozeCount} onChange={setMaxSnoozeCount} />
+                </View>
+              )}
 
-        {step === 3 && (
-          <View className="gap-5">
-            <SoundSelector value={soundUri} onChange={setSoundUri} />
-          </View>
-        )}
-
-        {step === 4 && (
-          <View className="gap-5">
-            <SequencePreview sequence={sequence} durationMinutes={duration} intervalMinutes={interval} />
-            <DaySelector selectedDays={days} onToggleDay={toggleDay} />
-          </View>
-        )}
-      </ScrollView>
+              {step === 4 && (
+                <View className="gap-5">
+                  <SequencePreview sequence={sequence} durationMinutes={duration} intervalMinutes={interval} />
+                  <DaySelector selectedDays={days} onToggleDay={toggleDay} />
+                </View>
+              )}
+            </ScrollView>
+          )}
 
       <BottomNav
         step={step}
