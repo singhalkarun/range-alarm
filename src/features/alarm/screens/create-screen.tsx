@@ -152,10 +152,14 @@ export function CreateScreen({ initialValues }: Props) {
   }, []);
 
   const handleSave = useCallback(async () => {
-    stopPreview();
-    const alarm: Alarm = { ...previewAlarm, id: initialValues?.id ?? Crypto.randomUUID() };
-    await saveAlarm(alarm);
-    router.back();
+    try {
+      stopPreview();
+      const alarm: Alarm = { ...previewAlarm, id: initialValues?.id ?? Crypto.randomUUID() };
+      await saveAlarm(alarm);
+      router.back();
+    } catch (e) {
+      console.error('Failed to save alarm:', e);
+    }
   }, [previewAlarm, initialValues?.id, saveAlarm, router]);
 
   const isEdit = !!initialValues;

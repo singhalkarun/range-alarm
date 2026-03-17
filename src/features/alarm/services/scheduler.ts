@@ -81,23 +81,27 @@ export async function scheduleAlarmSequence(alarm: Alarm): Promise<void> {
 
   for (const day of days) {
     for (const item of sequence) {
-      const triggerDate = getNextOccurrence(day, item.hour24, item.minute);
+      try {
+        const triggerDate = getNextOccurrence(day, item.hour24, item.minute);
 
-      scheduleAlarm({
-        id: buildAlarmEntryId(alarm.id, day, item.sequenceIndex),
-        triggerTimestamp: triggerDate.getTime(),
-        intensityTier: item.intensityTier,
-        label: alarm.label || '',
-        alarmId: alarm.id,
-        sequenceIndex: item.sequenceIndex,
-        totalInSequence: sequence.length,
-        dayIndex: day,
-        snoozeDurationMinutes: alarm.snoozeDurationMinutes,
-        maxSnoozeCount: alarm.maxSnoozeCount ?? DEFAULT_MAX_SNOOZE_COUNT,
-        snoozeCount: 0,
-        soundUri: alarm.soundUri,
-        isRecurring,
-      });
+        scheduleAlarm({
+          id: buildAlarmEntryId(alarm.id, day, item.sequenceIndex),
+          triggerTimestamp: triggerDate.getTime(),
+          intensityTier: item.intensityTier,
+          label: alarm.label || '',
+          alarmId: alarm.id,
+          sequenceIndex: item.sequenceIndex,
+          totalInSequence: sequence.length,
+          dayIndex: day,
+          snoozeDurationMinutes: alarm.snoozeDurationMinutes,
+          maxSnoozeCount: alarm.maxSnoozeCount ?? DEFAULT_MAX_SNOOZE_COUNT,
+          snoozeCount: 0,
+          soundUri: alarm.soundUri,
+          isRecurring,
+        });
+      } catch (e) {
+        console.error(`Failed to schedule alarm entry ${alarm.id}_${day}_${item.sequenceIndex}:`, e);
+      }
     }
   }
 }

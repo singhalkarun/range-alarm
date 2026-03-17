@@ -76,7 +76,11 @@ export type ScheduleAlarmParams = {
 };
 
 export function scheduleAlarm(params: ScheduleAlarmParams): boolean {
-  return (AlarmFullscreen?.scheduleAlarm(params) as boolean) ?? false;
+  // Strip undefined values — native side can't handle them in Map<String, Any>
+  const cleaned = Object.fromEntries(
+    Object.entries(params).filter(([, v]) => v !== undefined),
+  );
+  return (AlarmFullscreen?.scheduleAlarm(cleaned) as boolean) ?? false;
 }
 
 export function cancelAlarm(id: string): void {

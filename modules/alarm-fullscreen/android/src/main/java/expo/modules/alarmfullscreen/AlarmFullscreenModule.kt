@@ -173,25 +173,30 @@ class AlarmFullscreenModule : Module() {
 
         // --- New alarm engine functions ---
 
-        Function("scheduleAlarm") { params: Map<String, Any> ->
+        Function("scheduleAlarm") { params: Map<String, Any?> ->
             val context = appContext.reactContext ?: return@Function false
-            val entry = AlarmEntry(
-                id = params["id"] as String,
-                triggerTimestamp = (params["triggerTimestamp"] as Number).toLong(),
-                intensityTier = params["intensityTier"] as String,
-                label = (params["label"] as? String) ?: "",
-                alarmId = params["alarmId"] as String,
-                sequenceIndex = (params["sequenceIndex"] as Number).toInt(),
-                totalInSequence = (params["totalInSequence"] as Number).toInt(),
-                dayIndex = (params["dayIndex"] as Number).toInt(),
-                snoozeDurationMinutes = (params["snoozeDurationMinutes"] as Number).toInt(),
-                maxSnoozeCount = (params["maxSnoozeCount"] as Number).toInt(),
-                snoozeCount = (params["snoozeCount"] as? Number)?.toInt() ?: 0,
-                isRecurring = (params["isRecurring"] as? Boolean) ?: false,
-                soundUri = params["soundUri"] as? String
-            )
-            AlarmScheduler.schedule(context, entry)
-            return@Function true
+            try {
+                val entry = AlarmEntry(
+                    id = params["id"] as String,
+                    triggerTimestamp = (params["triggerTimestamp"] as Number).toLong(),
+                    intensityTier = params["intensityTier"] as String,
+                    label = (params["label"] as? String) ?: "",
+                    alarmId = params["alarmId"] as String,
+                    sequenceIndex = (params["sequenceIndex"] as Number).toInt(),
+                    totalInSequence = (params["totalInSequence"] as Number).toInt(),
+                    dayIndex = (params["dayIndex"] as Number).toInt(),
+                    snoozeDurationMinutes = (params["snoozeDurationMinutes"] as Number).toInt(),
+                    maxSnoozeCount = (params["maxSnoozeCount"] as Number).toInt(),
+                    snoozeCount = (params["snoozeCount"] as? Number)?.toInt() ?: 0,
+                    isRecurring = (params["isRecurring"] as? Boolean) ?: false,
+                    soundUri = params["soundUri"] as? String
+                )
+                AlarmScheduler.schedule(context, entry)
+                return@Function true
+            } catch (e: Exception) {
+                android.util.Log.e("AlarmEngine", "Failed to schedule alarm", e)
+                return@Function false
+            }
         }
 
         Function("cancelAlarm") { id: String ->
