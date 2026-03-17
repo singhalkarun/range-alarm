@@ -2,38 +2,44 @@
 
 import type { Alarm } from '../types';
 import { FlashList } from '@shopify/flash-list';
-import * as Notifications from 'expo-notifications';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 
-import { Alert, AppState, Pressable, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Alert, Pressable, View } from 'react-native';
 
-import { Text } from '@/components/ui';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, Text } from '@/components/ui';
 import { AlarmCard } from '../components/alarm-card';
 import { PermissionBanner } from '../components/permission-banner';
+import { useAlarmPermissions } from '../hooks/use-alarm-permissions';
 import { useScheduleAlarm } from '../hooks/use-schedule-alarm';
 import { useAlarmStore } from '../stores/use-alarm-store';
 
+function EmptyState() {
+  return (
+    <View className="flex-1 items-center justify-center p-10">
+      <Text className="mb-2 text-4xl">&#9200;</Text>
+      <Text className="mb-1 text-lg font-semibold text-white">No alarms yet</Text>
+      <Text className="text-center text-sm text-muted-foreground">
+        Tap + to create your first range alarm. Set once, wake up right.
+      </Text>
+    </View>
+  );
+}
+
 export function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const alarms = useAlarmStore(s => s.alarms);
   const { toggleAndSchedule, removeAlarm } = useScheduleAlarm();
-  const [permissionDenied, setPermissionDenied] = useState(false);
-
-  const checkPermission = useCallback(async () => {
-    const { status } = await Notifications.getPermissionsAsync();
-    setPermissionDenied(status !== 'granted');
-  }, []);
-
-  useEffect(() => {
-    checkPermission();
-    const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active')
-        checkPermission();
-    });
-    return () => sub.remove();
-  }, [checkPermission]);
+  const {
+    fsiDenied,
+    batteryOptEnabled,
+    batteryOptDismissed,
+    openFsiSettings,
+    openBatteryOptSettings,
+    dismissBatteryOptBanner,
+  } = useAlarmPermissions();
 
   const handleDelete = useCallback(
     (alarm: Alarm) => {
@@ -42,11 +48,7 @@ export function HomeScreen() {
         'Are you sure you want to delete this alarm?',
         [
           { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Delete',
-            style: 'destructive',
-            onPress: () => removeAlarm(alarm),
-          },
+          { text: 'Delete', style: 'destructive', onPress: () => removeAlarm(alarm) },
         ],
       );
     },
@@ -67,20 +69,29 @@ export function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <PermissionBanner visible={permissionDenied} />
+      <PermissionBanner
+        visible={fsiDenied}
+        title="Full-Screen Alarm Disabled"
+        message="Alarms can't display over the lock screen. Tap below to allow full-screen notifications."
+        buttonText="Allow Full-Screen"
+        onPress={openFsiSettings}
+      />
+      <PermissionBanner
+        visible={batteryOptEnabled && !batteryOptDismissed && !fsiDenied}
+        title="Battery Optimization Active"
+        message="Your device may delay or suppress alarms to save battery. Tap below to exempt this app."
+        buttonText="Disable Optimization"
+        onPress={openBatteryOptSettings}
+        onDismiss={dismissBatteryOptBanner}
+      />
+
+      <View style={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 16 }}>
+        <Text className="text-[28px] font-extrabold text-cyan-400">RangeAlarm</Text>
+        <Text className="mt-1 text-sm text-muted-foreground">Set once. Wake up right.</Text>
+      </View>
 
       {alarms.length === 0
-        ? (
-            <View className="flex-1 items-center justify-center px-8">
-              <Text className="mb-2 text-4xl">&#9200;</Text>
-              <Text className="mb-1 text-lg font-semibold text-white">
-                No alarms yet
-              </Text>
-              <Text className="text-center text-sm text-muted-foreground">
-                Tap + to create your first range alarm. Set once, wake up right.
-              </Text>
-            </View>
-          )
+        ? <EmptyState />
         : (
             <FlashList
               data={alarms}
@@ -90,20 +101,20 @@ export function HomeScreen() {
             />
           )}
 
-      {/* FAB */}
       <Pressable
         onPress={() => router.push('/create' as any)}
-        className="absolute right-6 bottom-8 size-14 items-center justify-center rounded-full bg-cyan-400"
+        className="absolute right-6 size-[60px] items-center justify-center rounded-full bg-cyan-400"
         style={{
+          bottom: 32 + insets.bottom,
           shadowColor: '#00D4FF',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.4,
-          shadowRadius: 12,
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.35,
+          shadowRadius: 25,
           elevation: 8,
         }}
         testID="fab-create"
       >
-        <Text className="text-2xl font-bold text-black">+</Text>
+        <Text className="text-[32px] font-bold text-white">+</Text>
       </Pressable>
     </SafeAreaView>
   );

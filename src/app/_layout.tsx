@@ -1,19 +1,21 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 import { ThemeProvider } from '@react-navigation/native';
-import * as Notifications from 'expo-notifications';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { AppState, StyleSheet } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useThemeConfig } from '@/components/ui/use-theme-config';
 import { APIProvider } from '@/lib/api';
-import { useNotificationListener } from '@/features/alarm/hooks/use-notification-listener';
+import { useAlarmEventListener } from '@/features/alarm/hooks/use-alarm-event-listener';
 import { registerBackgroundTask } from '@/features/alarm/services/background-task';
-import { rescheduleAllAlarms, setupNotificationChannels } from '@/features/alarm/services/scheduler';
+import { getLaunchAlarmData } from 'modules/alarm-fullscreen';
+import { rescheduleAllAlarms } from '@/features/alarm/services/scheduler';
+import { useRingingStore } from '@/features/alarm/stores/use-ringing-store';
 import { useAlarmStore } from '@/features/alarm/stores/use-alarm-store';
 import { hydrateAuth } from '@/features/auth/use-auth-store';
 
@@ -32,16 +34,6 @@ hydrateAuth();
 loadSelectedTheme();
 useAlarmStore.getState().hydrate();
 
-// Configure foreground notification behavior — show alert and play sound
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
-
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 // Set the animation options. This is optional.
@@ -51,13 +43,28 @@ SplashScreen.setOptions({
 });
 
 export default function RootLayout() {
-  useNotificationListener();
+  const router = useRouter();
+  useAlarmEventListener();
 
   React.useEffect(() => {
     async function setup() {
-      await Notifications.requestPermissionsAsync();
-      await setupNotificationChannels();
       await registerBackgroundTask();
+
+      // Cold-start: check if app was launched by alarm full-screen intent
+      const launchData = getLaunchAlarmData();
+      if (launchData?.alarmId) {
+        useRingingStore.getState().setRinging({
+          alarmId: launchData.alarmId,
+          dayIndex: launchData.dayIndex ?? 0,
+          sequenceIndex: launchData.sequenceIndex ?? 0,
+          total: launchData.totalInSequence ?? 1,
+          tier: (launchData.intensityTier ?? 'gentle') as any,
+          snoozeDuration: launchData.snoozeDurationMinutes ?? 5,
+          snoozeCount: launchData.snoozeCount ?? 0,
+          maxSnoozeCount: launchData.maxSnoozeCount ?? 3,
+        });
+        router.push('/ringing');
+      }
     }
     setup();
 
@@ -93,22 +100,24 @@ export default function RootLayout() {
 function Providers({ children }: { children: React.ReactNode }) {
   const theme = useThemeConfig();
   return (
-    <GestureHandlerRootView
-      style={styles.container}
-      // eslint-disable-next-line better-tailwindcss/no-unknown-classes
-      className={theme.dark ? `dark` : undefined}
-    >
-      <KeyboardProvider>
-        <ThemeProvider value={theme}>
-          <APIProvider>
-            <BottomSheetModalProvider>
-              {children}
-              <FlashMessage position="top" />
-            </BottomSheetModalProvider>
-          </APIProvider>
-        </ThemeProvider>
-      </KeyboardProvider>
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <GestureHandlerRootView
+        style={styles.container}
+        // eslint-disable-next-line better-tailwindcss/no-unknown-classes
+        className={theme.dark ? `dark` : undefined}
+      >
+        <KeyboardProvider>
+          <ThemeProvider value={theme}>
+            <APIProvider>
+              <BottomSheetModalProvider>
+                {children}
+                <FlashMessage position="top" />
+              </BottomSheetModalProvider>
+            </APIProvider>
+          </ThemeProvider>
+        </KeyboardProvider>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
 
