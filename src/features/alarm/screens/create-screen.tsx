@@ -3,7 +3,7 @@
 import type { Alarm } from '../types';
 import * as Crypto from 'expo-crypto';
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Pressable, ScrollView, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
@@ -13,9 +13,11 @@ import { DurationSlider } from '../components/duration-slider';
 import { IntervalSelector } from '../components/interval-selector';
 import { MaxSnoozeSelector } from '../components/max-snooze-selector';
 import { SequencePreview } from '../components/sequence-preview';
+import { SoundSelector } from '../components/sound-selector';
 import { SnoozeSelector } from '../components/snooze-selector';
 import { TimePicker } from '../components/time-picker';
 import { DEFAULT_MAX_SNOOZE_COUNT } from '../constants';
+import { stopPreview } from 'modules/alarm-fullscreen';
 import { useScheduleAlarm } from '../hooks/use-schedule-alarm';
 import { generateSequence } from '../services/sequence-generator';
 import { to12Hour, to24Hour } from '../utils/time';
@@ -122,6 +124,13 @@ export function CreateScreen({ initialValues }: Props) {
   const [snoozeDuration, setSnoozeDuration] = useState(initialValues?.snoozeDurationMinutes ?? 5);
   const [maxSnoozeCount, setMaxSnoozeCount] = useState(initialValues?.maxSnoozeCount ?? DEFAULT_MAX_SNOOZE_COUNT);
   const [days, setDays] = useState<number[]>(initialValues?.days ?? [1, 2, 3, 4, 5]);
+  const [soundUri, setSoundUri] = useState<string | undefined>(initialValues?.soundUri);
+
+  useEffect(() => {
+    if (step !== 2) {
+      stopPreview();
+    }
+  }, [step]);
 
   const previewAlarm = useMemo((): Alarm => ({
     id: initialValues?.id ?? 'preview',
@@ -133,7 +142,8 @@ export function CreateScreen({ initialValues }: Props) {
     maxSnoozeCount,
     days,
     enabled: true,
-  }), [hour, minute, ampm, duration, interval, snoozeDuration, maxSnoozeCount, days, initialValues?.id]);
+    soundUri,
+  }), [hour, minute, ampm, duration, interval, snoozeDuration, maxSnoozeCount, days, soundUri, initialValues?.id]);
 
   const sequence = useMemo(() => generateSequence(previewAlarm), [previewAlarm]);
 
@@ -142,6 +152,7 @@ export function CreateScreen({ initialValues }: Props) {
   }, []);
 
   const handleSave = useCallback(async () => {
+    stopPreview();
     const alarm: Alarm = { ...previewAlarm, id: initialValues?.id ?? Crypto.randomUUID() };
     await saveAlarm(alarm);
     router.back();
@@ -193,6 +204,7 @@ export function CreateScreen({ initialValues }: Props) {
             <IntervalSelector value={interval} onChange={setInterval} maxInterval={duration} />
             <SnoozeSelector value={snoozeDuration} onChange={setSnoozeDuration} />
             <MaxSnoozeSelector value={maxSnoozeCount} onChange={setMaxSnoozeCount} />
+            <SoundSelector value={soundUri} onChange={setSoundUri} />
           </View>
         )}
 

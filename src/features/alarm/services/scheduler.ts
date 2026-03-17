@@ -95,6 +95,7 @@ export async function scheduleAlarmSequence(alarm: Alarm): Promise<void> {
         snoozeDurationMinutes: alarm.snoozeDurationMinutes,
         maxSnoozeCount: alarm.maxSnoozeCount ?? DEFAULT_MAX_SNOOZE_COUNT,
         snoozeCount: 0,
+        soundUri: alarm.soundUri,
         isRecurring,
       });
     }

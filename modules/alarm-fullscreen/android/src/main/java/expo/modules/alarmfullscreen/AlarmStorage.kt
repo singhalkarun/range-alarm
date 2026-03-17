@@ -16,7 +16,8 @@ data class AlarmEntry(
     val snoozeDurationMinutes: Int,
     val maxSnoozeCount: Int,
     val snoozeCount: Int,
-    val isRecurring: Boolean
+    val isRecurring: Boolean,
+    val soundUri: String? = null
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("id", id)
@@ -31,6 +32,7 @@ data class AlarmEntry(
         put("maxSnoozeCount", maxSnoozeCount)
         put("snoozeCount", snoozeCount)
         put("isRecurring", isRecurring)
+        putOpt("soundUri", soundUri)
     }
 
     companion object {
@@ -48,7 +50,8 @@ data class AlarmEntry(
                 snoozeDurationMinutes = obj.getInt("snoozeDurationMinutes"),
                 maxSnoozeCount = obj.getInt("maxSnoozeCount"),
                 snoozeCount = obj.optInt("snoozeCount", 0),
-                isRecurring = obj.optBoolean("isRecurring", false)
+                isRecurring = obj.optBoolean("isRecurring", false),
+                soundUri = obj.optString("soundUri", null)
             )
         }
     }

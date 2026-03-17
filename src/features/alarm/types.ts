@@ -11,6 +11,7 @@ export type Alarm = {
   days: number[]; // 0=Sun..6=Sat, empty = one-time
   enabled: boolean;
   label?: string;
+  soundUri?: string;
 };
 
 export type AlarmSequenceItem = {

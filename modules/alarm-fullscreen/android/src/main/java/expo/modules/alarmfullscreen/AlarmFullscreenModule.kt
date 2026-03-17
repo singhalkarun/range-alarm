@@ -1,5 +1,6 @@
 package expo.modules.alarmfullscreen
 
+import android.media.MediaPlayer
 import android.Manifest
 import android.app.NotificationManager
 import android.content.Context
@@ -18,6 +19,16 @@ class AlarmFullscreenModule : Module() {
 
     private val eventListener: (AlarmEvent) -> Unit = { event ->
         sendEvent(event.name, event.data)
+    }
+
+    private var previewPlayer: android.media.MediaPlayer? = null
+
+    private fun stopPreviewPlayer() {
+        previewPlayer?.let {
+            if (it.isPlaying) it.stop()
+            it.release()
+        }
+        previewPlayer = null
     }
 
     override fun definition() = ModuleDefinition {
@@ -89,6 +100,77 @@ class AlarmFullscreenModule : Module() {
             return@Function null
         }
 
+        Function("getDeviceAlarmSounds") {
+            val context = appContext.reactContext ?: return@Function emptyList<Map<String, String>>()
+            val mgr = android.media.RingtoneManager(context)
+            mgr.setType(android.media.RingtoneManager.TYPE_ALARM)
+            val cursor = mgr.cursor
+            val sounds = mutableListOf<Map<String, String>>()
+
+            // Add bundled sounds first
+            val bundledSounds = listOf(
+                mapOf("uri" to "bundled_gentle", "title" to "Gentle Wake"),
+                mapOf("uri" to "bundled_moderate", "title" to "Moderate Pulse"),
+                mapOf("uri" to "bundled_strong", "title" to "Strong Beat"),
+                mapOf("uri" to "bundled_aggressive", "title" to "Urgent Alert"),
+            )
+            sounds.addAll(bundledSounds)
+
+            // Add device alarm sounds
+            while (cursor.moveToNext()) {
+                val uri = mgr.getRingtoneUri(cursor.position).toString()
+                val title = cursor.getString(android.media.RingtoneManager.TITLE_COLUMN_INDEX)
+                sounds.add(mapOf("uri" to uri, "title" to title))
+            }
+            return@Function sounds
+        }
+
+        Function("previewSound") { uri: String ->
+            val context = appContext.reactContext ?: return@Function null
+            stopPreviewPlayer()
+            try {
+                previewPlayer = if (uri.startsWith("bundled_")) {
+                    val resName = uri.removePrefix("bundled_")
+                    val resId = context.resources.getIdentifier(resName, "raw", context.packageName)
+                    if (resId == 0) return@Function null
+                    MediaPlayer().apply {
+                        setAudioAttributes(
+                            android.media.AudioAttributes.Builder()
+                                .setUsage(android.media.AudioAttributes.USAGE_ALARM)
+                                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                .build()
+                        )
+                        val afd = context.resources.openRawResourceFd(resId) ?: return@Function null
+                        setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                        afd.close()
+                        isLooping = false
+                        prepare()
+                        start()
+                    }
+                } else {
+                    MediaPlayer().apply {
+                        setAudioAttributes(
+                            android.media.AudioAttributes.Builder()
+                                .setUsage(android.media.AudioAttributes.USAGE_ALARM)
+                                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                .build()
+                        )
+                        setDataSource(context, android.net.Uri.parse(uri))
+                        prepare()
+                        start()
+                    }
+                }
+            } catch (e: Exception) {
+                // Silently fail if sound can't be played
+            }
+            return@Function null
+        }
+
+        Function("stopPreview") {
+            stopPreviewPlayer()
+            return@Function null
+        }
+
         // --- New alarm engine functions ---
 
         Function("scheduleAlarm") { params: Map<String, Any> ->
@@ -105,7 +187,8 @@ class AlarmFullscreenModule : Module() {
                 snoozeDurationMinutes = (params["snoozeDurationMinutes"] as Number).toInt(),
                 maxSnoozeCount = (params["maxSnoozeCount"] as Number).toInt(),
                 snoozeCount = (params["snoozeCount"] as? Number)?.toInt() ?: 0,
-                isRecurring = (params["isRecurring"] as? Boolean) ?: false
+                isRecurring = (params["isRecurring"] as? Boolean) ?: false,
+                soundUri = params["soundUri"] as? String
             )
             AlarmScheduler.schedule(context, entry)
             return@Function true

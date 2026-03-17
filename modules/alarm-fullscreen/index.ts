@@ -38,6 +38,25 @@ export function requestNotificationPermission(): void {
   AlarmFullscreen?.requestNotificationPermission();
 }
 
+// --- Sound functions ---
+
+export type AlarmSound = {
+  uri: string;
+  title: string;
+};
+
+export function getDeviceAlarmSounds(): AlarmSound[] {
+  return (AlarmFullscreen?.getDeviceAlarmSounds() as AlarmSound[]) ?? [];
+}
+
+export function previewSound(uri: string): void {
+  AlarmFullscreen?.previewSound(uri);
+}
+
+export function stopPreview(): void {
+  AlarmFullscreen?.stopPreview();
+}
+
 // --- Alarm engine functions (new) ---
 
 export type ScheduleAlarmParams = {
@@ -53,6 +72,7 @@ export type ScheduleAlarmParams = {
   maxSnoozeCount: number;
   snoozeCount?: number;
   isRecurring: boolean;
+  soundUri?: string;
 };
 
 export function scheduleAlarm(params: ScheduleAlarmParams): boolean {

@@ -110,11 +110,55 @@ class AlarmService : Service() {
     }
 
     private fun startSound(entry: AlarmEntry) {
+        val soundUri = entry.soundUri
+
+        mediaPlayer = MediaPlayer().apply {
+            setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+            )
+
+            try {
+                if (soundUri != null && !soundUri.startsWith("bundled_")) {
+                    // Device alarm sound (content URI)
+                    setDataSource(this@AlarmService, android.net.Uri.parse(soundUri))
+                } else {
+                    // Bundled sound — either from soundUri prefix or fallback to intensity tier
+                    val resName = if (soundUri != null && soundUri.startsWith("bundled_")) {
+                        soundUri.removePrefix("bundled_")
+                    } else {
+                        entry.intensityTier
+                    }
+                    val resId = resources.getIdentifier(resName, "raw", packageName)
+                    if (resId == 0) return
+                    val afd = resources.openRawResourceFd(resId) ?: return
+                    setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                    afd.close()
+                }
+
+                isLooping = true
+                prepare()
+
+                val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+                audioManager.setStreamVolume(AudioManager.STREAM_ALARM, maxVol, 0)
+
+                start()
+            } catch (e: Exception) {
+                // If custom sound fails, fall back to default
+                release()
+                mediaPlayer = null
+                startFallbackSound(entry)
+            }
+        }
+    }
+
+    private fun startFallbackSound(entry: AlarmEntry) {
         val resId = getSoundResource(entry.intensityTier)
         if (resId == 0) return
 
-        // IMPORTANT: Do NOT use MediaPlayer.create() — it returns an already-prepared player
-        // and setAudioAttributes() is a no-op after prepare(). We must construct manually.
         mediaPlayer = MediaPlayer().apply {
             setAudioAttributes(
                 AudioAttributes.Builder()
@@ -128,7 +172,6 @@ class AlarmService : Service() {
             isLooping = true
             prepare()
 
-            // Set alarm volume to max
             val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
             val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
             audioManager.setStreamVolume(AudioManager.STREAM_ALARM, maxVol, 0)
