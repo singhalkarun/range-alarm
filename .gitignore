@@ -39,3 +39,7 @@ app-example
 
 # Superpowers brainstorm assets
 .superpowers/
+
+# Website
+website/.next/
+website/out/
