@@ -40,6 +40,16 @@ app-example
 # Superpowers brainstorm assets
 .superpowers/
 
+# Native generated directories (expo prebuild)
+android/
+ios/
+
+# Native module build artifacts
+modules/*/android/build/
+
+# Test coverage
+coverage/
+
 # Website
 website/.next/
 website/out/
