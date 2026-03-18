@@ -53,3 +53,7 @@ coverage/
 # Website
 website/.next/
 website/out/
+
+# Play Store generated assets
+scripts/playstore-assets/screenshots/
+scripts/playstore-assets/framed/

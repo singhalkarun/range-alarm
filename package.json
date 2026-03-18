@@ -131,9 +131,15 @@
     "jest-junit": "^16.0.0",
     "lint-staged": "^16.2.7",
     "np": "^10.3.0",
+    "puppeteer": "^24.39.1",
     "tailwindcss": "4.1.18",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "puppeteer"
+    ]
   },
   "expo": {
     "doctor": {
