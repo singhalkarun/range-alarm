@@ -17,30 +17,46 @@ Three Android Virtual Devices (API 33, x86_64):
 | AVD Name | Form Factor | Status |
 |----------|-------------|--------|
 | Pixel4aAPI33 | Phone | Exists |
-| New 7" AVD (Nexus 7 profile) | 7-inch tablet | To be created |
+| Nexus7API33 (Nexus 7 profile) | 7-inch tablet | To be created |
 | GenericTablet10API33 | 10-inch tablet | Exists |
+
+Note: The existing `PixelTabletAPI33` (~11") is not used because it doesn't map to standard Play Store tablet categories. We use `GenericTablet10API33` for 10" and create a new Nexus 7 AVD for 7". While the Play Store currently has a single "Tablet" screenshot slot, having both sizes gives flexibility for marketing materials and future store requirements.
+
+### Build Variant
+
+Use the **development** build variant (`APP_ID=com.obytes.development`) for screenshot capture. Run `APP_ENV=development pnpm prebuild` if needed, then install via `adb install`. The development variant is sufficient for screenshots since the UI is identical to production.
 
 ### Screens to Capture
 
 Seven Maestro flow files, each capturing one screen. Flows are reused across all three devices.
 
-| # | Screen | Flow File | Description |
-|---|--------|-----------|-------------|
-| 1 | Home (empty) | capture-home-empty.yaml | Launch app, capture empty alarm list |
-| 2 | Home (with alarms) | capture-home-with-alarms.yaml | Create 2-3 sample alarms, capture populated list |
-| 3 | Create step 1 — Time | capture-create-step1.yaml | Open create screen, capture time picker |
-| 4 | Create step 2 — Range | capture-create-step2.yaml | Advance to range settings, capture |
-| 5 | Create step 3 — Sound | capture-create-step3.yaml | Advance to sound selector, capture |
-| 6 | Create step 4 — Preview | capture-create-step4.yaml | Advance to sequence preview, capture |
-| 7 | Ringing | capture-ringing.yaml | Schedule short-fuse alarm, wait for it to fire, capture ringing screen |
+| # | Screen | Flow File | Output Filename |
+|---|--------|-----------|-----------------|
+| 1 | Home (empty) | capture-home-empty.yaml | `01-home-empty.png` |
+| 2 | Home (with alarms) | capture-home-with-alarms.yaml | `02-home-with-alarms.png` |
+| 3 | Create step 1 — Time | capture-create-step1.yaml | `03-create-time.png` |
+| 4 | Create step 2 — Range | capture-create-step2.yaml | `04-create-range.png` |
+| 5 | Create step 3 — Sound | capture-create-step3.yaml | `05-create-sound.png` |
+| 6 | Create step 4 — Preview | capture-create-step4.yaml | `06-create-preview.png` |
+| 7 | Ringing | capture-ringing.yaml | `07-ringing.png` |
+
+Maestro flows receive the output directory via the `SCREENSHOT_DIR` environment variable (passed via `maestro test -e SCREENSHOT_DIR=...`). The orchestration script creates the per-device directories before running flows.
 
 ### Ringing Screen Strategy
 
-The ringing screen requires an actual alarm to fire. The Maestro flow will:
-1. Create an alarm set 1 minute in the future
-2. Save and return to home
-3. Wait for the alarm to trigger
-4. Capture the ringing screen
+Rather than scheduling a real alarm and waiting, use `adb shell am broadcast` to trigger the alarm BroadcastReceiver directly:
+
+```bash
+adb shell am broadcast -a com.obytes.development.ALARM_FIRED \
+  -n com.obytes.development/expo.modules.alarmfullscreen.AlarmReceiver \
+  --es label "Morning Alarm" --ei intensity 2
+```
+
+If the BroadcastReceiver requires specific extras or the intent filter doesn't support direct triggering, fall back to scheduling a 15-second alarm with an explicit Maestro timeout override (`timeout: 30000`).
+
+### Home Screen with Alarms
+
+The `capture-home-with-alarms.yaml` flow creates sample alarms by navigating through the create wizard. This is slow but reliable since Maestro has testIDs available (`fab-create`, `btn-next`, `btn-save`). Each alarm creation takes ~10 seconds, so 2-3 alarms adds ~30 seconds per device.
 
 ### Output
 
@@ -58,14 +74,15 @@ Raw PNGs saved to `scripts/playstore-assets/screenshots/{phone,tablet-7,tablet-1
 2. For each screenshot, renders an HTML template (`template.html`) with:
    - Dark background matching app theme
    - CSS-only device frame (rounded rect with bezel, no external frame images)
-   - Screenshot embedded inside the frame
-   - Marketing headline text above in Inter font, cyan accent color
+   - Screenshot embedded inside the frame, scaled with `object-fit: contain` to handle aspect ratio differences (e.g., Pixel 4a is 19.5:9 but Play Store expects 16:9 — screenshot is centered within the frame with dark padding)
+   - Marketing headline text above in Inter font (loaded via Google Fonts CDN `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700')`) with cyan accent color
 3. Puppeteer captures each rendered page as PNG at Play Store dimensions
+4. Script creates output directories (`mkdir -p`) before writing
 
 ### Play Store Dimensions
 
-| Device | Dimensions |
-|--------|-----------|
+| Device | Output Dimensions |
+|--------|-------------------|
 | Phone | 1080x1920 |
 | 7-inch tablet | 1200x1920 |
 | 10-inch tablet | 1200x1920 |
@@ -97,10 +114,16 @@ Framed PNGs saved to `scripts/playstore-assets/framed/{phone,tablet-7,tablet-10}
 1. Create 7-inch tablet AVD if it doesn't exist
 2. For each device (phone, tablet-7, tablet-10):
    - Boot emulator (headless with `-no-window`)
-   - Wait for boot complete (`adb wait-for-device && adb shell getprop sys.boot_completed`)
-   - Build and install the app
-   - Run Maestro flows, capturing screenshots
-   - Kill emulator
+   - Wait for boot complete with polling loop:
+     ```bash
+     adb -s $SERIAL wait-for-device
+     while [ "$(adb -s $SERIAL shell getprop sys.boot_completed 2>/dev/null)" != "1" ]; do sleep 1; done
+     ```
+   - Capture emulator serial from `adb devices` to target correct device with `adb -s $SERIAL` and `maestro --device $SERIAL`
+   - Install the pre-built APK via `adb -s $SERIAL install`
+   - Run Maestro flows with `maestro test -e SCREENSHOT_DIR=<output_dir> --device $SERIAL`
+   - Kill emulator via `adb -s $SERIAL emu kill`
+   - On failure: log which step failed, ensure emulator is killed (trap handler), exit with error
 3. Run Puppeteer script to generate framed versions
 
 ### File Structure
@@ -110,11 +133,11 @@ scripts/playstore-assets/
 ├── generate.sh                  # Master orchestration script
 ├── generate-framed.js           # Puppeteer framing script
 ├── template.html                # HTML template for framed screenshots
-├── screenshots/                 # Raw screenshots (Maestro output)
+├── screenshots/                 # Raw screenshots (Maestro output, gitignored)
 │   ├── phone/
 │   ├── tablet-7/
 │   └── tablet-10/
-├── framed/                      # Framed marketing screenshots (Puppeteer output)
+├── framed/                      # Framed marketing screenshots (Puppeteer output, gitignored)
 │   ├── phone/
 │   ├── tablet-7/
 │   └── tablet-10/
@@ -128,14 +151,14 @@ scripts/playstore-assets/
     └── capture-ringing.yaml
 ```
 
-Individual pieces can also be run standalone (e.g., just the Maestro flows, or just the framing script).
+The `screenshots/` and `framed/` directories are gitignored (generated binary output). Individual pieces can be run standalone (e.g., just the Maestro flows, or just the framing script).
 
 ## Dependencies
 
 - Android SDK with emulator (already installed)
 - Maestro CLI (`pnpm install-maestro`)
 - Puppeteer (to be added as devDependency)
-- Inter font (already used by the app)
+- Inter font (loaded via Google Fonts CDN in template.html)
 
 ## Out of Scope
 
