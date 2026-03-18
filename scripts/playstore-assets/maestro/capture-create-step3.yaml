@@ -4,6 +4,10 @@ appId: com.obytes.development
     clearState: true
 - waitForAnimationToEnd
 - tapOn:
+    text: "Not now"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
     id: "fab-create"
 - waitForAnimationToEnd
 - tapOn:

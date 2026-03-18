@@ -3,4 +3,11 @@ appId: com.obytes.development
 - launchApp:
     clearState: true
 - waitForAnimationToEnd
+
+# Dismiss battery optimization banner if visible
+- tapOn:
+    text: "Not now"
+    optional: true
+- waitForAnimationToEnd
+
 - takeScreenshot: ${SCREENSHOT_DIR}/01-home-empty

@@ -4,6 +4,12 @@ appId: com.obytes.development
     clearState: true
 - waitForAnimationToEnd
 
+# Dismiss battery optimization banner if visible
+- tapOn:
+    text: "Not now"
+    optional: true
+- waitForAnimationToEnd
+
 # Create first alarm (use default time, just advance through steps)
 - tapOn:
     id: "fab-create"
