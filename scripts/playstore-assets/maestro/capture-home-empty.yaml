@@ -1,4 +1,4 @@
-appId: com.obytes.development
+appId: com.singhalkarun.rangealarm
 ---
 - launchApp:
     clearState: true

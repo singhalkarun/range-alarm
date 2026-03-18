@@ -24,7 +24,7 @@ Note: The existing `PixelTabletAPI33` (~11") is not used because it doesn't map 
 
 ### Build Variant
 
-Use the **development** build variant (`APP_ID=com.obytes.development`) for screenshot capture. Run `APP_ENV=development pnpm prebuild` if needed, then install via `adb install`. The development variant is sufficient for screenshots since the UI is identical to production.
+Use the **development** build variant (`APP_ID=com.singhalkarun.rangealarm`) for screenshot capture. Run `APP_ENV=development pnpm prebuild` if needed, then install via `adb install`. The development variant is sufficient for screenshots since the UI is identical to production.
 
 ### Screens to Capture
 
@@ -47,8 +47,8 @@ Maestro flows receive the output directory via the `SCREENSHOT_DIR` environment 
 Rather than scheduling a real alarm and waiting, use `adb shell am broadcast` to trigger the alarm BroadcastReceiver directly:
 
 ```bash
-adb shell am broadcast -a com.obytes.development.ALARM_FIRED \
-  -n com.obytes.development/expo.modules.alarmfullscreen.AlarmReceiver \
+adb shell am broadcast -a com.singhalkarun.rangealarm.ALARM_FIRED \
+  -n com.singhalkarun.rangealarm/expo.modules.alarmfullscreen.AlarmReceiver \
   --es label "Morning Alarm" --ei intensity 2
 ```
 

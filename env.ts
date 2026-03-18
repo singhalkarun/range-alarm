@@ -24,21 +24,21 @@ const EXPO_PUBLIC_APP_ENV = (process.env.EXPO_PUBLIC_APP_ENV
   ?? 'development') as z.infer<typeof envSchema>['EXPO_PUBLIC_APP_ENV'];
 
 const BUNDLE_IDS = {
-  development: 'com.obytes.development',
-  preview: 'com.obytes.preview',
-  production: 'com.obytes',
+  development: 'com.singhalkarun.rangealarm',
+  preview: 'com.singhalkarun.rangealarm',
+  production: 'com.singhalkarun.rangealarm',
 } as const;
 
 const PACKAGES = {
-  development: 'com.obytes.development',
-  preview: 'com.obytes.preview',
-  production: 'com.obytes',
+  development: 'com.singhalkarun.rangealarm',
+  preview: 'com.singhalkarun.rangealarm',
+  production: 'com.singhalkarun.rangealarm',
 } as const;
 
 const SCHEMES = {
-  development: 'obytesApp',
-  preview: 'obytesApp.preview',
-  production: 'obytesApp',
+  development: 'rangealarm',
+  preview: 'rangealarm.preview',
+  production: 'rangealarm',
 } as const;
 
 const NAME = 'Range Alarm';

@@ -105,12 +105,12 @@ git commit -m "chore: add puppeteer, update gitignore for playstore assets"
 - Create: `scripts/playstore-assets/maestro/capture-home-empty.yaml`
 - Create: `scripts/playstore-assets/maestro/capture-home-with-alarms.yaml`
 
-**Context:** The app launches to the home screen showing a list of alarms (or empty state). testIDs: `fab-create` (create button). The app package is `com.obytes.development`. Maestro `takeScreenshot` saves to the path provided. The `SCREENSHOT_DIR` env var is passed via `maestro test -e SCREENSHOT_DIR=...`.
+**Context:** The app launches to the home screen showing a list of alarms (or empty state). testIDs: `fab-create` (create button). The app package is `com.singhalkarun.rangealarm`. Maestro `takeScreenshot` saves to the path provided. The `SCREENSHOT_DIR` env var is passed via `maestro test -e SCREENSHOT_DIR=...`.
 
 - [ ] **Step 1: Write capture-home-empty.yaml**
 
 ```yaml
-appId: com.obytes.development
+appId: com.singhalkarun.rangealarm
 ---
 - launchApp:
     clearState: true
@@ -145,7 +145,7 @@ Expected: Screenshot file created showing empty alarm list.
 This flow creates 2 sample alarms by navigating the 4-step create wizard, then screenshots the home screen. testIDs used: `fab-create`, `btn-next`, `btn-save`.
 
 ```yaml
-appId: com.obytes.development
+appId: com.singhalkarun.rangealarm
 ---
 - launchApp:
     clearState: true
@@ -224,7 +224,7 @@ git commit -m "feat: add Maestro flows for home screen screenshots"
 - [ ] **Step 1: Write capture-create-step1.yaml**
 
 ```yaml
-appId: com.obytes.development
+appId: com.singhalkarun.rangealarm
 ---
 - launchApp:
     clearState: true
@@ -238,7 +238,7 @@ appId: com.obytes.development
 - [ ] **Step 2: Write capture-create-step2.yaml**
 
 ```yaml
-appId: com.obytes.development
+appId: com.singhalkarun.rangealarm
 ---
 - launchApp:
     clearState: true
@@ -255,7 +255,7 @@ appId: com.obytes.development
 - [ ] **Step 3: Write capture-create-step3.yaml**
 
 ```yaml
-appId: com.obytes.development
+appId: com.singhalkarun.rangealarm
 ---
 - launchApp:
     clearState: true
@@ -275,7 +275,7 @@ appId: com.obytes.development
 - [ ] **Step 4: Write capture-create-step4.yaml**
 
 ```yaml
-appId: com.obytes.development
+appId: com.singhalkarun.rangealarm
 ---
 - launchApp:
     clearState: true
@@ -328,7 +328,7 @@ Strategy: Create an alarm, save it, then wait for the ringing screen elements (`
 - [ ] **Step 1: Write capture-ringing.yaml**
 
 ```yaml
-appId: com.obytes.development
+appId: com.singhalkarun.rangealarm
 ---
 - launchApp:
     clearState: true
