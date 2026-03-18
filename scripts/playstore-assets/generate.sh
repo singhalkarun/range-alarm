@@ -25,9 +25,10 @@ fi
 # Find the APK (development build)
 APK_PATH=""
 find_apk() {
+  # Prefer release APK (bundled JS) over debug (dev-client needs Metro server)
   local candidates=(
-    "$PROJECT_DIR/android/app/build/outputs/apk/debug/app-debug.apk"
     "$PROJECT_DIR/android/app/build/outputs/apk/release/app-release.apk"
+    "$PROJECT_DIR/android/app/build/outputs/apk/debug/app-debug.apk"
   )
   for candidate in "${candidates[@]}"; do
     if [[ -f "$candidate" ]]; then
