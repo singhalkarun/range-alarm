@@ -23,8 +23,9 @@ appId: com.obytes.development
 
 # Wait for the ringing screen to appear (alarm fires)
 # The "I'm Up" button is only visible on the ringing screen
-- assertVisible:
-    id: "btn-im-up"
+- extendedWaitUntil:
+    visible:
+      id: "btn-im-up"
     timeout: 120000
 
 # Capture the ringing screen
