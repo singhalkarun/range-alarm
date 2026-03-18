@@ -1,0 +1,6 @@
+appId: com.obytes.development
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/01-home-empty

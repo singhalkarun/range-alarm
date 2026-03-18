@@ -1,0 +1,44 @@
+appId: com.obytes.development
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd
+
+# Create first alarm (use default time, just advance through steps)
+- tapOn:
+    id: "fab-create"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-save"
+- waitForAnimationToEnd
+
+# Create second alarm (change time slightly)
+- tapOn:
+    id: "fab-create"
+- waitForAnimationToEnd
+- tapOn:
+    id: "hour-up"
+- tapOn:
+    id: "btn-next"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-save"
+- waitForAnimationToEnd
+
+# Screenshot the populated home screen
+- takeScreenshot: ${SCREENSHOT_DIR}/02-home-with-alarms
