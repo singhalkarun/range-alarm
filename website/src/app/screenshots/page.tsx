@@ -316,7 +316,7 @@ function AndroidTablet({
               display: "block",
               width: "100%",
               height: "100%",
-              objectFit: "contain",
+              objectFit: "cover",
               objectPosition: "top",
             }}
             draggable={false}
