@@ -93,7 +93,7 @@ const SLIDES: SlideConfig[] = [
     id: "create-sound",
     screenshot: "05-create-sound.png",
     label: "STEP 3",
-    headline: "Choose Your\nIntensity",
+    headline: "Choose Your\nSound",
     layout: "right",
     bgStyle: "default",
   },
