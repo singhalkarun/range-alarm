@@ -21,7 +21,7 @@ function EmptyState() {
       <Text className="mb-2 text-4xl">&#9200;</Text>
       <Text className="mb-1 text-lg font-semibold text-white">No alarms yet</Text>
       <Text className="text-center text-sm text-muted-foreground">
-        Tap + to create your first range alarm. Set once, wake up right.
+        Tap + to create your first range alarm. Wake up gradually, not abruptly.
       </Text>
     </View>
   );
@@ -87,7 +87,7 @@ export function HomeScreen() {
 
       <View style={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 16 }}>
         <Text className="text-[28px] font-extrabold text-cyan-400">RangeAlarm</Text>
-        <Text className="mt-1 text-sm text-muted-foreground">Set once. Wake up right.</Text>
+        <Text className="mt-1 text-sm text-muted-foreground">Wake up gradually, not abruptly.</Text>
       </View>
 
       {alarms.length === 0

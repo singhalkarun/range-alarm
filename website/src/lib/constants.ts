@@ -1,6 +1,6 @@
 export const APP_NAME = 'Range Alarm';
 export const APP_BRAND = 'RangeAlarm';
-export const APP_TAGLINE = 'Set once. Wake up right.';
+export const APP_TAGLINE = 'Wake up gradually, not abruptly.';
 export const APP_DESCRIPTION =
   'A mobile alarm app that wakes you gradually with a sequence of notifications at increasing intensity.';
 export const DEVELOPER_NAME = 'singhalkarun';

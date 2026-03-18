@@ -61,7 +61,7 @@ const SLIDES: SlideConfig[] = [
     id: "home-empty",
     screenshot: "01-home-empty.png",
     label: "RANGE ALARM",
-    headline: "Set Once.\nWake Up Right.",
+    headline: "Wake Up Gradually,\nNot Abruptly",
     layout: "hero",
     bgStyle: "default",
   },
@@ -792,7 +792,7 @@ function FeatureGraphicContent() {
             marginTop: 8,
           }}
         >
-          Set once. Wake up right.
+          Wake up gradually, not abruptly.
         </div>
       </div>
       {/* Subtle bottom line accent */}

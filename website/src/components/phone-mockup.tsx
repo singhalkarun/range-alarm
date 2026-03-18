@@ -31,7 +31,7 @@ export function PhoneMockup() {
         {/* App header */}
         <div className="px-5 pt-3 pb-3">
           <h3 className="text-lg font-extrabold text-cyan-400">RangeAlarm</h3>
-          <p className="text-[10px] text-muted-foreground">Set once. Wake up right.</p>
+          <p className="text-[10px] text-muted-foreground">Wake up gradually, not abruptly.</p>
         </div>
 
         {/* Alarm cards */}
