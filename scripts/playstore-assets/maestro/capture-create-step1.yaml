@@ -1,0 +1,9 @@
+appId: com.obytes.development
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "fab-create"
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/03-create-time

@@ -1,0 +1,18 @@
+appId: com.obytes.development
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "fab-create"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next"
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/06-create-preview

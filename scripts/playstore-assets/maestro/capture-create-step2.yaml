@@ -1,0 +1,12 @@
+appId: com.obytes.development
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd
+- tapOn:
+    id: "fab-create"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next"
+- waitForAnimationToEnd
+- takeScreenshot: ${SCREENSHOT_DIR}/04-create-range
