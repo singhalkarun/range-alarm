@@ -361,10 +361,10 @@ function Caption({
       </div>
       <div
         style={{
-          fontSize: canvasW * 0.082,
+          fontSize: canvasW * 0.07,
           fontWeight: 700,
           color: T.fg,
-          lineHeight: 1.05,
+          lineHeight: 1.08,
           letterSpacing: "-0.02em",
           whiteSpace: "pre-line",
         }}
@@ -457,7 +457,9 @@ function SlideContent({
   const isTablet = device !== "phone";
   const DeviceFrame = isTablet ? AndroidTablet : AndroidPhone;
 
-  const phoneWidth = isTablet ? canvasW * 0.68 : canvasW * 0.82;
+  // Phone: 68% width so it doesn't crowd the text
+  // Tablets: 85% width for a bigger, more prominent screen
+  const deviceWidth = isTablet ? canvasW * 0.85 : canvasW * 0.68;
 
   if (slide.layout === "hero") {
     return (
@@ -471,23 +473,24 @@ function SlideContent({
           alignItems: "center",
         }}
       >
-        {/* App icon + tagline */}
+        {/* App icon + tagline — top 35% */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            paddingTop: canvasH * 0.06,
-            gap: canvasW * 0.02,
+            paddingTop: canvasH * 0.05,
+            gap: canvasW * 0.018,
+            zIndex: 2,
           }}
         >
           <img
             src="/app-icon.png"
             alt="Range Alarm"
             style={{
-              width: canvasW * 0.14,
-              height: canvasW * 0.14,
-              borderRadius: canvasW * 0.03,
+              width: canvasW * 0.13,
+              height: canvasW * 0.13,
+              borderRadius: canvasW * 0.028,
             }}
             draggable={false}
           />
@@ -497,14 +500,14 @@ function SlideContent({
             canvasW={canvasW}
           />
         </div>
-        {/* Phone centered, peeking from bottom */}
+        {/* Device centered, anchored to bottom, peeking up */}
         <div
           style={{
             position: "absolute",
             bottom: 0,
             left: "50%",
-            transform: "translateX(-50%) translateY(12%)",
-            width: phoneWidth,
+            transform: "translateX(-50%) translateY(18%)",
+            width: deviceWidth,
           }}
         >
           <DeviceFrame src={src} alt={slide.headline} />
@@ -524,7 +527,7 @@ function SlideContent({
           flexDirection: "column",
         }}
       >
-        <div style={{ paddingTop: canvasH * 0.07 }}>
+        <div style={{ paddingTop: canvasH * 0.06, zIndex: 2 }}>
           <Caption
             label={slide.label}
             headline={slide.headline}
@@ -536,9 +539,9 @@ function SlideContent({
           style={{
             position: "absolute",
             bottom: 0,
-            right: isTablet ? "-2%" : "-5%",
-            width: phoneWidth * 0.95,
-            transform: "translateY(10%)",
+            right: isTablet ? "2%" : "0%",
+            width: deviceWidth * 0.92,
+            transform: "translateY(16%)",
           }}
         >
           <DeviceFrame src={src} alt={slide.headline} />
@@ -558,7 +561,7 @@ function SlideContent({
           flexDirection: "column",
         }}
       >
-        <div style={{ paddingTop: canvasH * 0.07 }}>
+        <div style={{ paddingTop: canvasH * 0.06, zIndex: 2 }}>
           <Caption
             label={slide.label}
             headline={slide.headline}
@@ -570,9 +573,9 @@ function SlideContent({
           style={{
             position: "absolute",
             bottom: 0,
-            left: isTablet ? "-2%" : "-5%",
-            width: phoneWidth * 0.95,
-            transform: "translateY(10%)",
+            left: isTablet ? "2%" : "0%",
+            width: deviceWidth * 0.92,
+            transform: "translateY(16%)",
           }}
         >
           <DeviceFrame src={src} alt={slide.headline} />
@@ -593,7 +596,7 @@ function SlideContent({
         alignItems: "center",
       }}
     >
-      <div style={{ paddingTop: canvasH * 0.06 }}>
+      <div style={{ paddingTop: canvasH * 0.05, zIndex: 2 }}>
         <Caption
           label={slide.label}
           headline={slide.headline}
@@ -605,8 +608,8 @@ function SlideContent({
           position: "absolute",
           bottom: 0,
           left: "50%",
-          transform: "translateX(-50%) translateY(14%)",
-          width: phoneWidth,
+          transform: "translateX(-50%) translateY(18%)",
+          width: deviceWidth,
         }}
       >
         <DeviceFrame src={src} alt={slide.headline} />
