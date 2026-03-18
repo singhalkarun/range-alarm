@@ -224,7 +224,7 @@ function AndroidPhone({
               display: "block",
               width: "100%",
               height: "100%",
-              objectFit: "cover",
+              objectFit: "contain",
               objectPosition: "top",
             }}
             draggable={false}
@@ -316,7 +316,7 @@ function AndroidTablet({
               display: "block",
               width: "100%",
               height: "100%",
-              objectFit: "cover",
+              objectFit: "contain",
               objectPosition: "top",
             }}
             draggable={false}
