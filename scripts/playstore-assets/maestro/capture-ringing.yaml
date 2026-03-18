@@ -1,0 +1,35 @@
+appId: com.obytes.development
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd
+
+# Create an alarm with default settings (fires at the next matching time)
+- tapOn:
+    id: "fab-create"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-next"
+- waitForAnimationToEnd
+- tapOn:
+    id: "btn-save"
+- waitForAnimationToEnd
+
+# Wait for the ringing screen to appear (alarm fires)
+# The "I'm Up" button is only visible on the ringing screen
+- assertVisible:
+    id: "btn-im-up"
+    timeout: 120000
+
+# Capture the ringing screen
+- takeScreenshot: ${SCREENSHOT_DIR}/07-ringing
+
+# Dismiss the alarm so it doesn't keep ringing
+- tapOn:
+    id: "btn-im-up"
