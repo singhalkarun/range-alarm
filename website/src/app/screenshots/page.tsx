@@ -725,6 +725,92 @@ function PreviewCard({
   );
 }
 
+/* ── Feature Graphic (1024x500) ───────────────────────────── */
+
+function FeatureGraphicContent() {
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        overflow: "hidden",
+        fontFamily: "'Inter', sans-serif",
+        background: `linear-gradient(135deg, ${T.bg} 0%, #0D1B2A 40%, ${T.bg} 100%)`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "4%",
+      }}
+    >
+      {/* Cyan glow */}
+      <div
+        style={{
+          position: "absolute",
+          width: "60%",
+          height: "120%",
+          borderRadius: "50%",
+          background:
+            "radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%)",
+          top: "-10%",
+          left: "20%",
+          pointerEvents: "none",
+        }}
+      />
+      {/* App icon */}
+      <img
+        src="/app-icon.png"
+        alt="Range Alarm"
+        style={{
+          width: 100,
+          height: 100,
+          borderRadius: 22,
+          position: "relative",
+          zIndex: 1,
+          flexShrink: 0,
+        }}
+        draggable={false}
+      />
+      {/* Text */}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <div
+          style={{
+            fontSize: 52,
+            fontWeight: 700,
+            color: T.fg,
+            lineHeight: 1.1,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          Range<span style={{ color: T.accent }}>Alarm</span>
+        </div>
+        <div
+          style={{
+            fontSize: 22,
+            fontWeight: 400,
+            color: T.muted,
+            marginTop: 8,
+          }}
+        >
+          Set once. Wake up right.
+        </div>
+      </div>
+      {/* Subtle bottom line accent */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: "10%",
+          width: "80%",
+          height: 3,
+          background: `linear-gradient(90deg, transparent, ${T.accent}, transparent)`,
+          opacity: 0.4,
+        }}
+      />
+    </div>
+  );
+}
+
 /* ── Main Page ───────────────────────────────────────────── */
 
 export default function ScreenshotsPage() {
@@ -971,6 +1057,114 @@ export default function ScreenshotsPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ── App Icon & Feature Graphic ──────────────────────── */}
+      <div
+        style={{
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+          padding: 24,
+          maxWidth: 1400,
+          margin: "0 auto",
+        }}
+      >
+        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20, color: T.fg }}>
+          App Icon & Feature Graphic
+        </h2>
+        <div style={{ display: "flex", gap: 24, flexWrap: "wrap", alignItems: "flex-start" }}>
+
+          {/* App Icon — 512x512 */}
+          <div>
+            <div
+              style={{
+                width: 200,
+                height: 200,
+                borderRadius: 12,
+                border: "1px solid rgba(255,255,255,0.08)",
+                overflow: "hidden",
+                cursor: "pointer",
+                background: T.bg,
+              }}
+              title="Click to download 512x512"
+              onClick={async () => {
+                const img = new window.Image();
+                img.crossOrigin = "anonymous";
+                img.src = "/app-icon.png";
+                await new Promise((r) => { img.onload = r; });
+                const c = document.createElement("canvas");
+                c.width = 512;
+                c.height = 512;
+                const ctx = c.getContext("2d")!;
+                ctx.drawImage(img, 0, 0, 512, 512);
+                const link = document.createElement("a");
+                link.download = "app-icon-512x512.png";
+                link.href = c.toDataURL("image/png");
+                link.click();
+              }}
+            >
+              <img
+                src="/app-icon.png"
+                alt="App Icon"
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                draggable={false}
+              />
+            </div>
+            <div style={{ marginTop: 8, fontSize: 12, color: T.muted, textAlign: "center" }}>
+              App Icon — 512x512 — Click to download
+            </div>
+          </div>
+
+          {/* Feature Graphic — 1024x500 */}
+          <div style={{ flex: 1, minWidth: 400 }}>
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+                aspectRatio: "1024/500",
+                borderRadius: 12,
+                border: "1px solid rgba(255,255,255,0.08)",
+                overflow: "hidden",
+                cursor: "pointer",
+                background: T.bg,
+              }}
+              title="Click to download 1024x500"
+              onClick={async () => {
+                const el = document.getElementById("feature-graphic-export");
+                if (!el) return;
+                el.style.position = "fixed";
+                el.style.left = "0px";
+                el.style.top = "0px";
+                el.style.zIndex = "-1";
+                el.style.opacity = "1";
+                const opts = { width: 1024, height: 500, pixelRatio: 1, cacheBust: true };
+                await toPng(el, opts);
+                const dataUrl = await toPng(el, opts);
+                el.style.position = "";
+                el.style.left = "";
+                el.style.top = "";
+                el.style.zIndex = "";
+                el.style.opacity = "";
+                const link = document.createElement("a");
+                link.download = "feature-graphic-1024x500.png";
+                link.href = dataUrl;
+                link.click();
+              }}
+            >
+              {/* Preview (scaled down) */}
+              <FeatureGraphicContent />
+            </div>
+            <div style={{ marginTop: 8, fontSize: 12, color: T.muted, textAlign: "center" }}>
+              Feature Graphic — 1024x500 — Click to download
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Hidden full-resolution feature graphic for export */}
+      <div id="feature-graphic-export" style={{ position: "absolute", left: -9999, top: 0, opacity: 0 }}>
+        <div style={{ width: 1024, height: 500 }}>
+          <FeatureGraphicContent />
+        </div>
       </div>
 
       {/* Hidden full-resolution slides for export */}
