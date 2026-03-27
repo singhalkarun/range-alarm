@@ -25,20 +25,36 @@ export function PermissionBanner({
     return null;
 
   return (
-    <View className="mx-4 mb-4 rounded-xl bg-danger-600/20 p-4">
-      <Text className="mb-2 text-sm font-semibold text-danger-400">
+    <View
+      style={{
+        marginHorizontal: 16,
+        marginBottom: 16,
+        borderRadius: 12,
+        backgroundColor: '#FEF2F2',
+        borderWidth: 1,
+        borderColor: '#FECACA',
+        padding: 16,
+      }}
+    >
+      <Text style={{ fontSize: 14, fontWeight: '600', color: '#DC2626', marginBottom: 6 }}>
         {title}
       </Text>
-      <Text className="mb-3 text-xs text-danger-300">
+      <Text style={{ fontSize: 13, color: '#991B1B', marginBottom: 12 }}>
         {message}
       </Text>
-      <View className="flex-row gap-3">
+      <View style={{ flexDirection: 'row', gap: 12 }}>
         {onPress && (
           <Pressable
             onPress={onPress}
-            className="self-start rounded-lg bg-danger-600 px-4 py-2"
+            style={{
+              alignSelf: 'flex-start',
+              borderRadius: 8,
+              backgroundColor: '#DC2626',
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+            }}
           >
-            <Text className="text-sm font-semibold text-white">
+            <Text style={{ fontSize: 14, fontWeight: '600', color: '#FFFFFF' }}>
               {buttonText}
             </Text>
           </Pressable>
@@ -46,9 +62,13 @@ export function PermissionBanner({
         {onDismiss && (
           <Pressable
             onPress={onDismiss}
-            className="self-start rounded-lg px-4 py-2"
+            style={{
+              alignSelf: 'flex-start',
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+            }}
           >
-            <Text className="text-sm text-danger-300">
+            <Text style={{ fontSize: 14, color: '#991B1B' }}>
               Not now
             </Text>
           </Pressable>
