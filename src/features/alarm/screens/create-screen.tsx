@@ -3,111 +3,192 @@
 import type { Alarm } from '../types';
 import * as Crypto from 'expo-crypto';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-
-import { Alert, Pressable, ScrollView, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import { useCallback, useMemo, useState } from 'react';
+import { Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Alert } from 'react-native';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { SafeAreaView, Text } from '@/components/ui';
 import { DaySelector } from '../components/day-selector';
-import { DurationSlider } from '../components/duration-slider';
-import { IntervalSelector } from '../components/interval-selector';
-import { MaxSnoozeSelector } from '../components/max-snooze-selector';
-import { SequencePreview } from '../components/sequence-preview';
-import { SoundSelector } from '../components/sound-selector';
-import { SnoozeSelector } from '../components/snooze-selector';
-import { TimePicker } from '../components/time-picker';
 import { DEFAULT_MAX_SNOOZE_COUNT } from '../constants';
-import { stopPreview } from 'modules/alarm-fullscreen';
 import { useScheduleAlarm } from '../hooks/use-schedule-alarm';
-import { generateSequence } from '../services/sequence-generator';
 import { to12Hour, to24Hour } from '../utils/time';
 
 type Props = {
   initialValues?: Alarm;
 };
 
-const TOTAL_STEPS = 4;
+const DURATION_PRESETS = [15, 30, 45] as const;
+const INTERVAL_PRESETS = [5, 10, 15] as const;
 
-function StepBars({ step }: { step: number }) {
+type SoundPreset = 'mist' | 'rain' | 'waves';
+function LeafIcon({ color }: { color: string }) {
   return (
-    <View className="flex-row gap-2 px-6 pb-5">
-      {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(s => (
-        <View
-          key={s}
-          className={`h-1 flex-1 rounded-sm ${
-            s <= step ? 'bg-cyan-400' : 'bg-muted'
-          }`}
-        />
-      ))}
-    </View>
+    <Svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10Z" />
+      <Path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+    </Svg>
   );
 }
 
-function BottomNav({
-  step,
-  isEdit,
-  onBack,
-  onNext,
-  onSave,
+function CloudRainIcon({ color }: { color: string }) {
+  return (
+    <Svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+      <Path d="M16 14v6" />
+      <Path d="M8 14v6" />
+      <Path d="M12 16v6" />
+    </Svg>
+  );
+}
+
+function WavesIcon({ color }: { color: string }) {
+  return (
+    <Svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+      <Path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+      <Path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
+    </Svg>
+  );
+}
+
+function SoundIcon({ type, color }: { type: SoundPreset; color: string }) {
+  switch (type) {
+    case 'mist': return <LeafIcon color={color} />;
+    case 'rain': return <CloudRainIcon color={color} />;
+    case 'waves': return <WavesIcon color={color} />;
+  }
+}
+
+const SOUND_PRESETS: { key: SoundPreset; label: string }[] = [
+  { key: 'mist', label: 'Mist' },
+  { key: 'rain', label: 'Rain' },
+  { key: 'waves', label: 'Waves' },
+];
+
+function formatMinute(m: number): string {
+  return String(m).padStart(2, '0');
+}
+
+function addMinutes(
+  hour24: number,
+  minute: number,
+  add: number,
+): { hour24: number; minute: number } {
+  const total = hour24 * 60 + minute + add;
+  return {
+    hour24: Math.floor(total / 60) % 24,
+    minute: total % 60,
+  };
+}
+
+function getTimeOfDayLabel(hour24: number): string {
+  if (hour24 >= 5 && hour24 < 12) return 'morning';
+  if (hour24 >= 12 && hour24 < 17) return 'afternoon';
+  if (hour24 >= 17 && hour24 < 21) return 'evening';
+  return 'night';
+}
+
+function soundPresetToUri(key: SoundPreset): string {
+  return key;
+}
+
+function uriToSoundPreset(uri?: string): SoundPreset {
+  if (uri === 'rain') return 'rain';
+  if (uri === 'waves') return 'waves';
+  return 'mist';
+}
+
+// Section label component
+function SectionLabel({ children }: { children: string }) {
+  return (
+    <Text
+      style={{
+        fontSize: 11,
+        fontWeight: '600',
+        letterSpacing: 1,
+        color: '#9C9B99',
+        textTransform: 'uppercase',
+      }}
+    >
+      {children}
+    </Text>
+  );
+}
+
+// Pill button used across sections
+function PillButton({
+  label,
+  selected,
+  onPress,
 }: {
-  step: number;
-  isEdit: boolean;
-  onBack: () => void;
-  onNext: () => void;
-  onSave: () => void;
+  label: string;
+  selected: boolean;
+  onPress: () => void;
 }) {
   return (
-    <View className="flex-row gap-3" style={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 32 }}>
-      <Pressable
-        onPress={onBack}
-        className="items-center justify-center rounded-[14px] border-[1.5px] border-border px-5"
-        style={{ height: 52 }}
-        testID="btn-back"
+    <Pressable
+      onPress={onPress}
+      style={{
+        backgroundColor: selected ? '#3D8A5A' : '#FFFFFF',
+        borderWidth: selected ? 0 : 1,
+        borderColor: '#EDECEA',
+        borderRadius: 999,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 14,
+          fontWeight: '500',
+          color: selected ? '#FFFFFF' : '#1A1918',
+        }}
       >
-        <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-          <Path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-        </Svg>
-      </Pressable>
-      {step < TOTAL_STEPS
-        ? (
-            <Pressable
-              onPress={onNext}
-              className="flex-1 items-center justify-center rounded-[14px] bg-cyan-400"
-              style={{ height: 52 }}
-              testID="btn-next"
-            >
-              <View className="flex-row items-center gap-2">
-                <Text className="text-base font-bold text-white">
-                  {step === TOTAL_STEPS - 1 ? 'Preview' : 'Next'}
-                </Text>
-                <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-                  <Path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-                </Svg>
-              </View>
-            </Pressable>
-          )
-        : (
-            <Pressable
-              onPress={onSave}
-              className="flex-1 items-center justify-center rounded-[14px] bg-cyan-400"
-              style={{ height: 52 }}
-              testID="btn-save"
-            >
-              <Text className="text-base font-bold text-white" style={{ includeFontPadding: false }}>
-                {isEdit ? 'Update Alarm' : 'Save Alarm'}
-              </Text>
-            </Pressable>
-          )}
-    </View>
+        {label}
+      </Text>
+    </Pressable>
   );
 }
 
-const STEP_SUBTITLES = [
-  'When should your alarm range begin?',
-  'How long and how often should alarms ring?',
-  'Pick a sound for your alarm',
-  'Here\'s your alarm sequence',
-] as const;
+function SoundPillButton({
+  soundKey,
+  label,
+  selected,
+  onPress,
+}: {
+  soundKey: SoundPreset;
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        backgroundColor: selected ? '#3D8A5A' : '#FFFFFF',
+        borderWidth: selected ? 0 : 1,
+        borderColor: '#EDECEA',
+        borderRadius: 999,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+      }}
+    >
+      <SoundIcon type={soundKey} color={selected ? '#FFFFFF' : '#1A1918'} />
+      <Text
+        style={{
+          fontSize: 14,
+          fontWeight: '500',
+          color: selected ? '#FFFFFF' : '#1A1918',
+        }}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
 
 export function CreateScreen({ initialValues }: Props) {
   const router = useRouter();
@@ -115,54 +196,68 @@ export function CreateScreen({ initialValues }: Props) {
 
   const initial12 = initialValues
     ? to12Hour(initialValues.startHour)
-    : { hour: 7, ampm: 'AM' as const };
+    : { hour: 6, ampm: 'AM' as const };
 
-  const [step, setStep] = useState(1);
   const [hour, setHour] = useState(initial12.hour);
   const [minute, setMinute] = useState(initialValues?.startMinute ?? 0);
   const [ampm, setAmpm] = useState<'AM' | 'PM'>(initial12.ampm);
   const [duration, setDuration] = useState(initialValues?.durationMinutes ?? 30);
   const [interval, setInterval] = useState(initialValues?.intervalMinutes ?? 10);
-  const [snoozeDuration, setSnoozeDuration] = useState(initialValues?.snoozeDurationMinutes ?? 5);
-  const [maxSnoozeCount, setMaxSnoozeCount] = useState(initialValues?.maxSnoozeCount ?? DEFAULT_MAX_SNOOZE_COUNT);
   const [days, setDays] = useState<number[]>(initialValues?.days ?? [1, 2, 3, 4, 5]);
-  const [soundUri, setSoundUri] = useState<string | undefined>(initialValues?.soundUri);
+  const [sound, setSound] = useState<SoundPreset>(uriToSoundPreset(initialValues?.soundUri));
+  const [label, setLabel] = useState(initialValues?.label ?? '');
 
-  useEffect(() => {
-    if (step !== 3) {
-      stopPreview();
-    }
-  }, [step]);
+  const isEdit = !!initialValues;
 
-  const previewAlarm = useMemo((): Alarm => ({
-    id: initialValues?.id ?? 'preview',
-    startHour: to24Hour(hour, ampm),
-    startMinute: minute,
-    durationMinutes: duration,
-    intervalMinutes: interval,
-    snoozeDurationMinutes: snoozeDuration,
-    maxSnoozeCount,
-    days,
-    enabled: true,
-    soundUri,
-  }), [hour, minute, ampm, duration, interval, snoozeDuration, maxSnoozeCount, days, soundUri, initialValues?.id]);
+  const startHour24 = useMemo(() => to24Hour(hour, ampm), [hour, ampm]);
+  const endTime = useMemo(
+    () => addMinutes(startHour24, minute, duration),
+    [startHour24, minute, duration],
+  );
+  const end12 = useMemo(() => to12Hour(endTime.hour24), [endTime.hour24]);
 
-  const sequence = useMemo(() => generateSequence(previewAlarm), [previewAlarm]);
+  const timeOfDay = useMemo(() => getTimeOfDayLabel(startHour24), [startHour24]);
 
   const toggleDay = useCallback((day: number) => {
-    setDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
+    setDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
+    );
   }, []);
 
   const handleSave = useCallback(async () => {
     try {
-      stopPreview();
-      const alarm: Alarm = { ...previewAlarm, id: initialValues?.id ?? Crypto.randomUUID() };
+      const alarm: Alarm = {
+        id: initialValues?.id ?? Crypto.randomUUID(),
+        startHour: startHour24,
+        startMinute: minute,
+        durationMinutes: duration,
+        intervalMinutes: interval,
+        snoozeDurationMinutes: initialValues?.snoozeDurationMinutes ?? 5,
+        maxSnoozeCount: initialValues?.maxSnoozeCount ?? DEFAULT_MAX_SNOOZE_COUNT,
+        days,
+        enabled: true,
+        label: label.trim() || undefined,
+        soundUri: soundPresetToUri(sound),
+      };
       await saveAlarm(alarm);
       router.back();
     } catch (e) {
       console.error('Failed to save alarm:', e);
     }
-  }, [previewAlarm, initialValues?.id, saveAlarm, router]);
+  }, [
+    initialValues?.id,
+    initialValues?.snoozeDurationMinutes,
+    initialValues?.maxSnoozeCount,
+    startHour24,
+    minute,
+    duration,
+    interval,
+    days,
+    label,
+    sound,
+    saveAlarm,
+    router,
+  ]);
 
   const handleDelete = useCallback(() => {
     if (!initialValues) return;
@@ -183,94 +278,259 @@ export function CreateScreen({ initialValues }: Props) {
     );
   }, [initialValues, removeAlarm, router]);
 
-  const isEdit = !!initialValues;
-  const stepTitle = step === 1
-    ? 'Pick Start Time'
-    : step === 2
-      ? 'Set Your Range'
-      : step === 3
-        ? 'Choose Sound'
-        : 'Preview Alarms';
-
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF8F5' }}>
       {/* Header */}
-      <View className="flex-row items-center justify-between" style={{ paddingHorizontal: 20, paddingVertical: 16 }}>
-        <Text className="text-lg font-bold text-white">
-          {isEdit ? 'Edit Range Alarm' : 'New Range Alarm'}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 20,
+          paddingVertical: 16,
+        }}
+      >
+        <Pressable onPress={() => router.back()} hitSlop={12}>
+          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#1A1918" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <Path d="m12 19-7-7 7-7" />
+            <Path d="M19 12H5" />
+          </Svg>
+        </Pressable>
+        <Text
+          style={{
+            fontSize: 16,
+            fontWeight: '600',
+            color: '#1A1918',
+            marginLeft: 12,
+          }}
+        >
+          {isEdit ? 'edit alarm' : 'create alarm'}
         </Text>
         {isEdit && (
           <Pressable
             onPress={handleDelete}
-            className="rounded-lg bg-danger-500/15 px-3 py-1.5"
+            style={{ marginLeft: 'auto' }}
             testID="btn-delete-alarm"
           >
-            <Text className="text-sm font-semibold text-danger-500">Delete</Text>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: '#D94545' }}>
+              Delete
+            </Text>
           </Pressable>
         )}
       </View>
 
-      <StepBars step={step} />
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Range Card */}
+        <View
+          style={{
+            backgroundColor: '#FFFFFF',
+            borderRadius: 16,
+            borderWidth: 1,
+            borderColor: '#EDECEA',
+            padding: 24,
+            alignItems: 'center',
+            marginBottom: 28,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              letterSpacing: 1,
+              color: '#9C9B99',
+              textTransform: 'uppercase',
+              marginBottom: 20,
+            }}
+          >
+            I WANT TO WAKE UP
+          </Text>
 
-      {step === 3
-        ? (
-            <View className="flex-1 px-6">
-              <Text className="mb-1.5 text-[22px] font-bold text-white">
-                {stepTitle}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 24,
+              marginBottom: 8,
+            }}
+          >
+            {/* Start time */}
+            <View style={{ alignItems: 'center' }}>
+              <Pressable
+                onPress={() => {
+                  // Cycle hour for start time
+                  setHour((h) => (h % 12) + 1);
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 40,
+                    fontWeight: '700',
+                    color: '#1A1918',
+                  }}
+                >
+                  {hour}:{formatMinute(minute)}
+                </Text>
+              </Pressable>
+              <Text style={{ fontSize: 13, color: '#9C9B99', marginTop: 4 }}>
+                start
               </Text>
-              <Text className="mb-6 text-sm text-muted-foreground">
-                {STEP_SUBTITLES[step - 1]}
-              </Text>
-              <SoundSelector value={soundUri} onChange={setSoundUri} />
             </View>
-          )
-        : (
-            <ScrollView className="flex-1 px-6" keyboardShouldPersistTaps="handled">
-              <Text className="mb-1.5 text-[22px] font-bold text-white">
-                {stepTitle}
+
+            {/* Circular indicator */}
+            <View
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 24,
+                borderWidth: 3,
+                borderColor: '#3D8A5A',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <View
+                style={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: 6,
+                  backgroundColor: '#3D8A5A',
+                }}
+              />
+            </View>
+
+            {/* End time */}
+            <View style={{ alignItems: 'center' }}>
+              <Text
+                style={{
+                  fontSize: 40,
+                  fontWeight: '700',
+                  color: '#1A1918',
+                }}
+              >
+                {end12.hour}:{formatMinute(endTime.minute)}
               </Text>
-              <Text className="mb-6 text-sm text-muted-foreground">
-                {STEP_SUBTITLES[step - 1]}
+              <Text style={{ fontSize: 13, color: '#9C9B99', marginTop: 4 }}>
+                end
               </Text>
+            </View>
+          </View>
 
-              {step === 1 && (
-                <View className="gap-6" style={{ paddingVertical: 30 }}>
-                  <TimePicker
-                    hour={hour}
-                    minute={minute}
-                    ampm={ampm}
-                    onChangeHour={setHour}
-                    onChangeMinute={setMinute}
-                    onChangeAmPm={setAmpm}
-                  />
-                </View>
-              )}
+          {/* AM/PM toggle */}
+          <Pressable
+            onPress={() => setAmpm((v) => (v === 'AM' ? 'PM' : 'AM'))}
+          >
+            <View
+              style={{
+                backgroundColor: '#3D8A5A18',
+                borderRadius: 999,
+                paddingHorizontal: 14,
+                paddingVertical: 6,
+                marginTop: 12,
+              }}
+            >
+              <Text
+                style={{ fontSize: 13, fontWeight: '600', color: '#3D8A5A' }}
+              >
+                {timeOfDay} · {ampm}
+              </Text>
+            </View>
+          </Pressable>
+        </View>
 
-              {step === 2 && (
-                <View className="gap-7">
-                  <DurationSlider value={duration} onChange={setDuration} />
-                  <IntervalSelector value={interval} onChange={setInterval} maxInterval={duration} />
-                  <SnoozeSelector value={snoozeDuration} onChange={setSnoozeDuration} />
-                  <MaxSnoozeSelector value={maxSnoozeCount} onChange={setMaxSnoozeCount} />
-                </View>
-              )}
+        {/* WAKE-UP RANGE */}
+        <View style={{ marginBottom: 28 }}>
+          <SectionLabel>WAKE-UP RANGE</SectionLabel>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+            {DURATION_PRESETS.map((d) => (
+              <PillButton
+                key={d}
+                label={`${d} min`}
+                selected={duration === d}
+                onPress={() => setDuration(d)}
+              />
+            ))}
+          </View>
+        </View>
 
-              {step === 4 && (
-                <View className="gap-5">
-                  <SequencePreview sequence={sequence} durationMinutes={duration} intervalMinutes={interval} />
-                  <DaySelector selectedDays={days} onToggleDay={toggleDay} />
-                </View>
-              )}
-            </ScrollView>
-          )}
+        {/* ALARM FREQUENCY */}
+        <View style={{ marginBottom: 28 }}>
+          <SectionLabel>ALARM FREQUENCY</SectionLabel>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+            {INTERVAL_PRESETS.map((i) => (
+              <PillButton
+                key={i}
+                label={`every ${i} min`}
+                selected={interval === i}
+                onPress={() => setInterval(i)}
+              />
+            ))}
+          </View>
+        </View>
 
-      <BottomNav
-        step={step}
-        isEdit={isEdit}
-        onBack={() => step > 1 ? setStep(step - 1) : router.back()}
-        onNext={() => setStep(step + 1)}
-        onSave={handleSave}
-      />
+        {/* WAKE-UP SOUND */}
+        <View style={{ marginBottom: 28 }}>
+          <SectionLabel>WAKE-UP SOUND</SectionLabel>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
+            {SOUND_PRESETS.map((s) => (
+              <SoundPillButton
+                key={s.key}
+                soundKey={s.key}
+                label={s.label}
+                selected={sound === s.key}
+                onPress={() => setSound(s.key)}
+              />
+            ))}
+          </View>
+        </View>
+
+        {/* ALARM LABEL */}
+        <View style={{ marginBottom: 28 }}>
+          <Text style={{ fontSize: 12, color: '#9C9B99', marginBottom: 8 }}>
+            alarm label
+          </Text>
+          <TextInput
+            value={label}
+            onChangeText={setLabel}
+            placeholder="Morning Mist"
+            placeholderTextColor="#C8C7C5"
+            style={{
+              fontSize: 20,
+              fontWeight: '500',
+              color: '#1A1918',
+              borderBottomWidth: 1,
+              borderBottomColor: '#EDECEA',
+              paddingBottom: 10,
+            }}
+          />
+        </View>
+
+        {/* REPEAT */}
+        <View style={{ marginBottom: 32 }}>
+          <SectionLabel>REPEAT</SectionLabel>
+          <DaySelector selectedDays={days} onToggleDay={toggleDay} />
+        </View>
+
+        {/* Save Button */}
+        <Pressable
+          onPress={handleSave}
+          style={{
+            backgroundColor: '#3D8A5A',
+            borderRadius: 12,
+            paddingVertical: 18,
+            alignItems: 'center',
+          }}
+          testID="btn-save"
+        >
+          <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFFFFF' }}>
+            {isEdit ? 'Update Alarm' : 'Save Alarm'}
+          </Text>
+        </Pressable>
+      </ScrollView>
     </SafeAreaView>
   );
 }

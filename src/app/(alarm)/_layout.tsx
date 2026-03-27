@@ -11,10 +11,10 @@ export default function AlarmLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: '#0D1B2A' },
+        contentStyle: { backgroundColor: '#FAF8F5' },
       }}
     >
-      <Stack.Screen name="index" />
+      <Stack.Screen name="(tabs)" />
       <Stack.Screen
         name="create"
         options={{

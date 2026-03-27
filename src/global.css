@@ -11,19 +11,36 @@
   --color-white: #ffffff;
   --color-black: #000000;
 
-  /* Charcoal palette */
-  --color-charcoal-50: #F2F2F2;
-  --color-charcoal-100: #E5E5E5;
-  --color-charcoal-200: #C9C9C9;
-  --color-charcoal-300: #B0B0B0;
-  --color-charcoal-400: #969696;
-  --color-charcoal-500: #7D7D7D;
-  --color-charcoal-600: #616161;
-  --color-charcoal-700: #474747;
-  --color-charcoal-800: #383838;
-  --color-charcoal-850: #2E2E2E;
-  --color-charcoal-900: #1E1E1E;
-  --color-charcoal-950: #121212;
+  /* Sora warm palette */
+  --color-cream-50: #FAF8F5;
+  --color-cream-100: #F5F4F1;
+  --color-cream-200: #EDECEA;
+  --color-cream-300: #E5E4E1;
+  --color-cream-400: #D1D0CD;
+  --color-cream-500: #A8A7A5;
+  --color-cream-600: #9C9B99;
+  --color-cream-700: #6D6C6A;
+  --color-cream-800: #1A1918;
+
+  /* Green palette */
+  --color-green-50: #C8F0D820;
+  --color-green-100: #C8F0D8;
+  --color-green-200: #8BDCA6;
+  --color-green-300: #5BC77E;
+  --color-green-400: #4AAF6A;
+  --color-green-500: #3D8A5A;
+  --color-green-600: #347A4E;
+  --color-green-700: #2B6A42;
+  --color-green-800: #1E5A34;
+  --color-green-900: #154A28;
+
+  /* Sunrise palette (ringing screen) */
+  --color-sunrise-100: #F5F0EB;
+  --color-sunrise-200: #FCEBD4;
+  --color-sunrise-300: #F5D4B3;
+  --color-sunrise-400: #E8C4A0;
+  --color-sunrise-500: #D89575;
+  --color-sunrise-600: #D4A64A;
 
   /* Neutral palette */
   --color-neutral-50: #FAFAFA;
@@ -36,18 +53,6 @@
   --color-neutral-700: #404040;
   --color-neutral-800: #262626;
   --color-neutral-900: #171717;
-
-  /* Primary palette */
-  --color-primary-50: #FFE2CC;
-  --color-primary-100: #FFC499;
-  --color-primary-200: #FFA766;
-  --color-primary-300: #FF984C;
-  --color-primary-400: #FF8933;
-  --color-primary-500: #FF7B1A;
-  --color-primary-600: #FF6C00;
-  --color-primary-700: #E56100;
-  --color-primary-800: #CC5600;
-  --color-primary-900: #B24C00;
 
   /* Success palette */
   --color-success-50: #F0FDF4;
@@ -85,49 +90,31 @@
   --color-danger-800: #991B1B;
   --color-danger-900: #7F1D1D;
 
-  /* Semantic colors - using primary for main brand color */
-  --color-background: #ffffff;
-  --color-foreground: #0a0a0a;
+  /* Semantic colors - V2 sora warm theme */
+  --color-background: #FAF8F5;
+  --color-foreground: #1A1918;
 
-  --color-card: #ffffff;
-  --color-card-foreground: #0a0a0a;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1A1918;
 
-  --color-muted: #f5f5f5;
-  --color-muted-foreground: #737373;
+  --color-muted: #EDECEA;
+  --color-muted-foreground: #9C9B99;
 
-  --color-border: #e5e5e5;
-  --color-input: #e5e5e5;
-  --color-ring: #FF6C00;
+  --color-border: #EDECEA;
+  --color-input: #EDECEA;
+  --color-ring: #3D8A5A;
 
-  --color-destructive: #ef4444;
+  --color-destructive: #EF4444;
   --color-destructive-foreground: #ffffff;
 
-  /* Alarm app - Dark Cyan palette */
-  --color-navy-900: #060b14;
-  --color-navy-800: #0D1B2A;
-  --color-navy-700: #1B2838;
-  --color-navy-600: #243447;
+  /* Keep legacy color aliases for any existing usage */
+  --color-primary-400: #3D8A5A;
+  --color-primary-500: #3D8A5A;
+  --color-primary-600: #347A4E;
 
-  --color-cyan-400: #00D4FF;
-  --color-cyan-500: #00bfe6;
-  --color-cyan-600: #00a8cc;
-}
-
-/* Dark mode colors */
-@media (prefers-color-scheme: dark) {
-  @theme {
-    --color-background: #0D1B2A;
-    --color-foreground: #f0f0f0;
-
-    --color-card: #1B2838;
-    --color-card-foreground: #f0f0f0;
-
-    --color-muted: #243447;
-    --color-muted-foreground: #8892A0;
-
-    --color-border: #2A3A4E;
-    --color-input: #2A3A4E;
-  }
+  --color-charcoal-50: #F2F2F2;
+  --color-charcoal-100: #E5E5E5;
+  --color-charcoal-950: #121212;
 }
 
 /* Custom utilities (if needed) */

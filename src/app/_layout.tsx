@@ -106,11 +106,7 @@ function Providers({ children }: { children: React.ReactNode }) {
   const theme = useThemeConfig();
   return (
     <SafeAreaProvider>
-      <GestureHandlerRootView
-        style={styles.container}
-        // eslint-disable-next-line better-tailwindcss/no-unknown-classes
-        className={theme.dark ? `dark` : undefined}
-      >
+      <GestureHandlerRootView style={styles.container}>
         <KeyboardProvider>
           <ThemeProvider value={theme}>
             <APIProvider>

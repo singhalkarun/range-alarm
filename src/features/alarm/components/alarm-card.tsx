@@ -5,7 +5,6 @@ import { Pressable, Switch, View } from 'react-native';
 
 import { Swipeable } from 'react-native-gesture-handler';
 import { Text } from '@/components/ui';
-import { DAY_LABELS } from '../constants';
 import { generateSequence } from '../services/sequence-generator';
 import { to12Hour } from '../utils/time';
 
@@ -18,16 +17,42 @@ type Props = {
 
 function DeleteAction() {
   return (
-    <View className="mr-4 mb-3 items-center justify-center rounded-2xl bg-danger-600 px-6">
-      <Text className="text-sm font-semibold text-white">Delete</Text>
+    <View
+      style={{
+        marginRight: 20,
+        marginBottom: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 16,
+        backgroundColor: '#DC2626',
+        paddingHorizontal: 24,
+      }}
+    >
+      <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFFFFF' }}>
+        Delete
+      </Text>
     </View>
   );
 }
 
 export function AlarmCard({ alarm, onPress, onToggle, onDelete }: Props) {
-  const { hour, ampm } = to12Hour(alarm.startHour);
   const sequence = generateSequence(alarm);
-  const timeDisplay = `${hour}:${String(alarm.startMinute).padStart(2, '0')}`;
+
+  // Build start time display
+  const { hour: startHour, ampm: startAmpm } = to12Hour(alarm.startHour);
+  const startDisplay = `${startHour}:${String(alarm.startMinute).padStart(2, '0')}`;
+
+  // Build end time display from last sequence item
+  const lastItem = sequence[sequence.length - 1];
+  const endDisplay = lastItem?.display ?? startDisplay;
+
+  // Sequence times string (e.g. "6:00 · 6:15 · 6:30 · 6:45 · 7:00 · 7:15 · 7:30")
+  const sequenceTimesStr = sequence.map(item => item.display).join(' \u00B7 ');
+
+  // Label line: "AM · Morning Mist" or just "AM"
+  const labelLine = alarm.label
+    ? `${startAmpm} \u00B7 ${alarm.label}`
+    : startAmpm;
 
   return (
     <Swipeable
@@ -36,89 +61,71 @@ export function AlarmCard({ alarm, onPress, onToggle, onDelete }: Props) {
     >
       <Pressable
         onPress={onPress}
-        className={`mx-5 mb-3.5 rounded-2xl border border-border bg-card ${
-          alarm.enabled ? '' : 'opacity-40'
-        }`}
-        style={{ paddingHorizontal: 20, paddingVertical: 18 }}
+        style={{
+          marginHorizontal: 20,
+          marginBottom: 12,
+          borderRadius: 16,
+          backgroundColor: '#FFFFFF',
+          paddingHorizontal: 18,
+          paddingVertical: 18,
+          opacity: alarm.enabled ? 1 : 0.5,
+          shadowColor: '#1A191808',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 1,
+          shadowRadius: 12,
+          elevation: 2,
+        }}
         testID={`alarm-card-${alarm.id}`}
       >
-        {/* Top row: time + toggle */}
-        <View className="flex-row items-start justify-between">
-          <View>
-            <View className="flex-row items-baseline">
-              <Text className="text-[36px] font-bold text-white" style={{ letterSpacing: -1, lineHeight: 40 }}>
-                {timeDisplay}
-              </Text>
-              <Text className="ml-1 text-base font-normal text-muted-foreground">
-                {ampm}
-              </Text>
-            </View>
-            <Text className="mt-1.5 text-[13px] text-muted-foreground">
-              Range:
-              {' '}
-              {alarm.durationMinutes}
-              {' '}
-              min, every
-              {' '}
-              {alarm.intervalMinutes}
-              {' '}
-              min
-            </Text>
-            {/* Range badge */}
-            <View className="mt-1.5 flex-row items-center self-start rounded-full bg-cyan-400/15 px-2.5 py-1">
-              <Text className="text-xs font-semibold text-cyan-400">
-                {'\u23F1'}
-                {' '}
-                {sequence.length}
-                {' '}
-                alarms in sequence
-              </Text>
-            </View>
-          </View>
+        {/* Top row: time range + toggle */}
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 24,
+              fontWeight: '700',
+              color: '#1A1918',
+              letterSpacing: -0.3,
+            }}
+          >
+            {startDisplay} — {endDisplay}
+          </Text>
           <Switch
             value={alarm.enabled}
             onValueChange={onToggle}
-            trackColor={{ false: '#243447', true: '#00D4FF' }}
-            thumbColor="#fff"
-            style={{ width: 52, height: 30 }}
+            trackColor={{ false: '#D1D0CD', true: '#3D8A5A' }}
+            thumbColor="#FFFFFF"
             testID={`alarm-toggle-${alarm.id}`}
           />
         </View>
 
-        {/* Sequence dots */}
-        <View className="mt-3 flex-row gap-1">
-          {sequence.map((_, i) => (
-            <View
-              key={i}
-              className="size-2 rounded-full bg-cyan-400"
-              style={{ opacity: i === 0 ? 1 : 0.3 }}
-            />
-          ))}
-        </View>
+        {/* Label line */}
+        <Text
+          style={{
+            fontSize: 13,
+            color: '#9C9B99',
+            marginTop: 6,
+          }}
+        >
+          {labelLine}
+        </Text>
 
-        {/* Day chips */}
-        <View className="mt-2.5 flex-row gap-1.5">
-          {DAY_LABELS.map((label, i) => {
-            const isActive = alarm.days.includes(i);
-            return (
-              <View
-                key={i}
-                className={`size-7 items-center justify-center rounded-full ${
-                  isActive ? 'bg-cyan-400/15' : 'bg-muted'
-                }`}
-              >
-                <Text
-                  className={`text-[11px] font-semibold ${
-                    isActive ? 'text-cyan-400' : 'text-muted-foreground'
-                  }`}
-                  style={{ color: isActive ? '#00D4FF' : '#556677' }}
-                >
-                  {label}
-                </Text>
-              </View>
-            );
-          })}
-        </View>
+        {/* Sequence times */}
+        <Text
+          style={{
+            fontSize: 11,
+            color: '#A8A7A5',
+            marginTop: 8,
+          }}
+          numberOfLines={1}
+        >
+          {sequenceTimesStr}
+        </Text>
       </Pressable>
     </Swipeable>
   );
